@@ -1,0 +1,38 @@
+{
+  "btn.backToList": "Повернутися до списку фільмів",
+  "btn.cancel": "Скасувати",
+  "btn.create": "Створити",
+  "btn.edit": "Редагувати",
+  "btn.save": "Зберегти",
+
+  "field.country": "Країна",
+  "field.description": "Опис",
+  "field.director": "Режисер",
+  "field.genres": "Жанри",
+  "field.image": "URL зображення",
+  "field.rating": "Рейтинг",
+  "field.title": "Назва",
+  "field.year": "Рік випуску",
+
+  "movieDetails.country": "Країна: ",
+  "movieDetails.description": "Опис",
+  "movieDetails.director": "Режисер: ",
+  "movieDetails.genres": "Жанри: ",
+  "movieDetails.loading": "Завантаження деталей фільму...",
+  "movieDetails.rating": "Рейтинг: ",
+  "movieDetails.year": "Рік випуску: ",
+  "movieDetails.title": "Деталі фільму",
+
+  "movie.error.EMPTY_MOVIE_DIRECTOR": "Режисер є обов'язковим",
+  "movie.error.EMPTY_MOVIE_TITLE": "Назва є обов'язковою",
+
+  "movie.error.INVALID_MOVIE_DATA_FORMAT": "{field} має бути {format}",
+  "movie.error.INVALID_MOVIE_RATING": "Рейтинг є обов'язковим",
+  "movie.error.INVALID_MOVIE_YEAR": "Рік є обов'язковим",
+
+  "movie.error.MOVIE_RATING_TOO_HIGH": "Рейтинг повинен бути не більшим за {max}",
+  "movie.error.MOVIE_RATING_TOO_LOW": "Рейтинг повинен бути не меншим за {min}",
+
+  "movie.error.MOVIE_YEAR_TOO_HIGH": "Рік повинен бути не більшим за {max}",
+  "movie.error.MOVIE_YEAR_TOO_LOW": "Рік повинен бути не меншим за {min}"
+}

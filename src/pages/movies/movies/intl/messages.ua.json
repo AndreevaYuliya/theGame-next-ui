@@ -1,0 +1,21 @@
+{
+  "btn.addEntity": "Додати фiльм",
+  "btn.cancel": "Скасувати",
+  "btn.delete": "Видалити",
+  "btn.close": "Закрити",
+  "btn.confirm": "Пiдтвердити",
+  "btn.nextPage": "Наступна сторінка",
+  "btn.prevPage": "Попередня сторінка",
+
+  "delete.confirmationMessage": "Ви впевнені, що хочете видалити: {movieTitle}?",
+  "delete.confirmTitle": "Пiдтвердження видалення",
+
+  "filters.apply": "Застосувати фiльтри",
+  "filters.clear": "Очистити фiльтри",
+  "filters.label.title": "Пошук за назвою",
+  "filters.label.yearFrom": "Пошук за роком від",
+  "filters.label.yearTo": "Пошук за роком до",
+
+  "movies.title": "Фiльми",
+  "movies.loading": "Завантаження фiльмiв..."
+}

@@ -1,24 +1,24 @@
-import React from 'react';
-import ButtonMUI from '@mui/material/Button';
-import useTheme from 'misc/hooks/useTheme';
-import CircularProgress from '../CircularProgress';
+import React from "react";
+import ButtonMUI from "@mui/material/Button";
+import useTheme from "misc/hooks/useTheme";
+import CircularProgress from "../CircularProgress";
 
 const colorVariants = {
-  header: 'header',
-  primary: 'primary',
-  secondary: 'secondary',
+  header: "header",
+  primary: "primary",
+  secondary: "secondary",
 };
 
 const variants = {
-  primary: 'primary',
-  secondary: 'secondary',
-  text: 'text',
+  primary: "primary",
+  secondary: "secondary",
+  text: "text",
 };
 
 const MUIVariantsToVariants = {
-  [variants.primary]: 'contained',
-  [variants.secondary]: 'outlined',
-  [variants.text]: 'text',
+  [variants.primary]: "contained",
+  [variants.secondary]: "outlined",
+  [variants.text]: "text",
 };
 
 function Button({
@@ -30,15 +30,13 @@ function Button({
   onClick,
   startIcon,
   variant = variants.secondary,
+  className,
 }) {
   const { theme } = useTheme();
   return (
     <>
       {isLoading && (
-        <ButtonMUI
-          disabled
-          variant="contained"
-        >
+        <ButtonMUI disabled variant="contained">
           <CircularProgress size={16} />
         </ButtonMUI>
       )}
@@ -49,21 +47,22 @@ function Button({
           onClick={onClick}
           startIcon={startIcon}
           sx={{
-            '&.MuiButton-root': {
+            "&.MuiButton-root": {
               background: theme.button.color[colorVariant].background,
               borderColor: theme.button.color[colorVariant].text,
               color: theme.button.color[colorVariant].text,
-              opacity: disabled && '0.4',
-              textTransform: 'none',
-              '&:hover': {
+              opacity: disabled && "0.4",
+              textTransform: "none",
+              "&:hover": {
                 background: theme.button.color[colorVariant].backgroundHovered,
               },
-              '&.Mui-disabled': {
+              "&.Mui-disabled": {
                 background: theme.button.color[colorVariant].backgroundDisabled,
               },
             },
           }}
           variant={MUIVariantsToVariants[variant]}
+          className={className}
         >
           {children}
         </ButtonMUI>

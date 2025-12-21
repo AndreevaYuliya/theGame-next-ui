@@ -1,19 +1,19 @@
-import React from 'react';
-import { createUseStyles } from 'react-jss';
-import MenuItemMUI from '@mui/material/MenuItem';
-import useTheme from 'misc/hooks/useTheme';
+import React from "react";
+import { createUseStyles } from "react-jss";
+import MenuItemMUI from "@mui/material/MenuItem";
+import useTheme from "misc/hooks/useTheme";
 
-const getClasses = createUseStyles(theme => ({
+const getClasses = createUseStyles((theme) => ({
   container: {
-    alignItems: 'center',
-    display: 'flex',
+    alignItems: "center",
+    display: "flex",
     gap: `${theme.spacing(1)}px`,
   },
 }));
 
 const colorVariants = {
-  header: 'header',
-  primary: 'primary',
+  header: "header",
+  primary: "primary",
 };
 
 function MenuItem({
@@ -30,20 +30,20 @@ function MenuItem({
       onClick={onClick}
       selected={selected}
       sx={{
-        '&.MuiMenuItem-root': {
-          '&:hover': {
-            backgroundColor: theme.menuItem.color[colorVariant].backgroundHovered,
+        "&.MuiMenuItem-root": {
+          "&:hover": {
+            backgroundColor:
+              theme.menuItem.color[colorVariant].backgroundHovered,
           },
-          '&.Mui-selected': {
-            backgroundColor: theme.menuItem.color[colorVariant].backgroundSelected,
+          "&.Mui-selected": {
+            backgroundColor:
+              theme.menuItem.color[colorVariant].backgroundSelected,
           },
         },
       }}
       value={value}
     >
-      <div className={classes.container}>
-        {children}
-      </div>
+      <div className={classes.container}>{children}</div>
     </MenuItemMUI>
   );
 }

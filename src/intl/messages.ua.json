@@ -3,6 +3,8 @@
   "error.UNAUTHORIZED": "У вас немає привілеїв для використання функціоналу системи.",
   "page.default": "Головна",
   "page.login": "Логiн",
+  "page.movies": "Фiльми",
+  "page.moviesDetails": "Деталi Фiльму",
   "page.secret": "Секретна Сторiнка",
   "signIn": "Увiйти",
   "signOut": "Вийти"
