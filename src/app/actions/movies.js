@@ -7,9 +7,8 @@ import {
   REQUEST_DELETE_MOVIE,
   SUCCESS_DELETE_MOVIE,
   ERROR_DELETE_MOVIE,
-  SHOW_TOAST,
-  HIDE_TOAST,
 } from "../constants/actionTypes";
+import toastActions from "./toast";
 
 const requestMovies = () => ({
   type: REQUEST_MOVIES,
@@ -40,15 +39,9 @@ const errorDelete = (payload) => ({
   payload,
 });
 
-export const showToast = (message) => ({
-  type: SHOW_TOAST,
-  payload: { message },
-});
-
-export const hideToast = () => ({ type: HIDE_TOAST });
-
 const getMovies = ({ page, size, filters = {} }) => {
   const { MOVIES_SERVICE } = config;
+
   return axios.post(`${MOVIES_SERVICE}/movies/_list`, {
     page,
     size,
@@ -58,6 +51,7 @@ const getMovies = ({ page, size, filters = {} }) => {
 
 const deleteMovie = (id) => {
   const { MOVIES_SERVICE } = config;
+
   return axios.delete(`${MOVIES_SERVICE}/movies/${id}`);
 };
 
@@ -70,10 +64,9 @@ const fetchMovies =
       let data;
 
       const response = await getMovies({ page, size, filters });
-      // axios interceptor already returns response.data; fallback to response.data for safety
+
       data = response?.data ?? response;
 
-      // normalize response shape to expected pagination structure
       const content =
         data?.content ?? data?.list ?? (Array.isArray(data) ? data : []);
 
@@ -93,11 +86,15 @@ const fetchMovies =
 
 const fetchDeleteMovie = (id) => async (dispatch) => {
   dispatch(requestDelete(id));
+
   try {
     await deleteMovie(id);
+
     dispatch(successDelete(id));
-    dispatch(showToast("Movie deleted successfully"));
-    setTimeout(() => dispatch(hideToast()), 2500);
+    dispatch(toastActions.showToast("Movie deleted successfully"));
+
+    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+
     return true;
   } catch (e) {
     const message =
@@ -107,8 +104,10 @@ const fetchDeleteMovie = (id) => async (dispatch) => {
       "Delete failed";
 
     dispatch(errorDelete({ message }));
-    dispatch(showToast(message));
-    setTimeout(() => dispatch(hideToast()), 2500);
+    dispatch(toastActions.showToast(message));
+
+    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+
     return false;
   }
 };
@@ -116,8 +115,6 @@ const fetchDeleteMovie = (id) => async (dispatch) => {
 const moviesActions = {
   fetchMovies,
   fetchDeleteMovie,
-  showToast,
-  hideToast,
 };
 
 export default moviesActions;

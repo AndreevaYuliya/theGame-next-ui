@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 
 import { createUseStyles } from "react-jss";
 import { useIntl } from "react-intl";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useTheme from "misc/hooks/useTheme";
 
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 import actionsMovieDetails from "app/actions/movieDetails";
 
 import Typography from "components/Typography";
@@ -14,12 +14,20 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import Select from "components/Select";
 import MenuItem from "components/MenuItem";
-import pagesURLs from "constants/pagesURLs";
-import * as pages from "constants/pages";
 import IconButton from "components/IconButton";
 import IconBack from "components/icons/Back";
 import IconEdit from "components/icons/Edit";
+
+import pagesURLs from "constants/pagesURLs";
+import * as pages from "constants/pages";
+
 import * as errorCodes from "../constants/errorCodes";
+import {
+  MIN_MOVIE_YEAR,
+  MAX_MOVIE_YEAR,
+  MIN_MOVIE_RATING,
+  MAX_MOVIE_RATING,
+} from "../constants/validationConstants";
 
 const getClasses = createUseStyles((theme) => ({
   container: ({ theme }) => ({
@@ -76,23 +84,18 @@ const getClasses = createUseStyles((theme) => ({
   }),
 }));
 
-const minMovieYear = 1880;
-const maxMovieYear = new Date().getFullYear();
-const minMovieRating = 0.0;
-const maxMovieRating = 10.0;
-
 function MovieDetailsPage() {
   const { formatMessage } = useIntl();
+
   const { theme } = useTheme();
   const classes = getClasses({ theme });
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { movieId } = useParams();
 
   const isNew = movieId === "new";
-  const [mode, setMode] = useState(isNew ? "edit" : "view");
 
   const {
     title,
@@ -107,6 +110,7 @@ function MovieDetailsPage() {
   } = useSelector((s) => s.movieDetails);
   const toast = useSelector((s) => s.toast);
 
+  const [mode, setMode] = useState(isNew ? "edit" : "view");
   const [form, setForm] = useState({
     title: "",
     image: "",
@@ -121,85 +125,16 @@ function MovieDetailsPage() {
   const [externalErrors, setExternalErrors] = useState([]);
   const [directors, setDirectors] = useState([]);
 
-  const backToList = () => {
-    const search =
-      location.state?.fromSearch || location.search.replace(/^\?/, "");
-    navigate(
-      {
-        pathname: pagesURLs[pages.moviesPage],
-        search: search ? `?${search}` : "",
-      },
-      { replace: true }
-    );
-  };
-
-  const hasError = (code) =>
-    validationErrors.some((err) => (err?.code || err) === code);
-
-  const getFormatError = (target) =>
-    validationErrors.find(
-      (err) =>
-        err?.code === errorCodes.INVALID_MOVIE_DATA_FORMAT &&
-        err.target === target
-    );
-
-  const getMovieValidationErrors = () => {
-    const errs = [];
-    if (!form.title) {
-      errs.push({ code: errorCodes.EMPTY_MOVIE_TITLE });
-    }
-    if (!form.directorId) {
-      errs.push({ code: errorCodes.EMPTY_MOVIE_DIRECTOR });
-    }
-
-    if (!form.year) {
-      errs.push({ code: errorCodes.INVALID_MOVIE_YEAR });
-    } else if (Number.isNaN(Number(form.year))) {
-      errs.push({
-        code: errorCodes.INVALID_MOVIE_DATA_FORMAT,
-        field: formatMessage({ id: "field.year" }),
-        format: "number",
-        target: "year",
-      });
-    } else {
-      const yearNum = Number(form.year);
-      if (yearNum < minMovieYear) {
-        errs.push({ code: errorCodes.MOVIE_YEAR_TOO_LOW });
-      } else if (yearNum > maxMovieYear) {
-        errs.push({ code: errorCodes.MOVIE_YEAR_TOO_HIGH });
-      }
-    }
-
-    if (!form.rating && form.rating !== 0) {
-      errs.push({ code: errorCodes.INVALID_MOVIE_RATING });
-    } else if (Number.isNaN(Number(form.rating))) {
-      errs.push({
-        code: errorCodes.INVALID_MOVIE_DATA_FORMAT,
-        field: formatMessage({ id: "field.rating" }),
-        format: "number",
-        target: "rating",
-      });
-    } else {
-      const ratingNum = Number(form.rating);
-      if (ratingNum < minMovieRating) {
-        errs.push({ code: errorCodes.MOVIE_RATING_TOO_LOW });
-      } else if (ratingNum > maxMovieRating) {
-        errs.push({ code: errorCodes.MOVIE_RATING_TOO_HIGH });
-      }
-    }
-    return errs;
-  };
-
-  const tError = (code, values) =>
-    formatMessage({ id: `movie.error.${code}`, defaultMessage: code }, values);
-
-  /* ----------- EFFECTS ----------- */
   useEffect(() => {
     dispatch(actionsMovieDetails.fetchDirectors()).then((res) => {
       if (Array.isArray(res)) {
         setDirectors(res);
       }
     });
+
+    return () => {
+      dispatch(actionsMovieDetails.clearMovieDetails());
+    };
   }, [dispatch]);
 
   useEffect(() => {
@@ -211,16 +146,12 @@ function MovieDetailsPage() {
   }, [dispatch, isNew, movieId]);
 
   useEffect(() => {
-    return () => {
-      dispatch(actionsMovieDetails.requestMovieDetails());
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
     if (!errors || errors.length === 0) {
       setExternalErrors([]);
+
       return;
     }
+
     const errorCodeValues = Object.values(errorCodes);
     const messages = errors.map((error) =>
       errorCodeValues.includes(error.code)
@@ -230,6 +161,7 @@ function MovieDetailsPage() {
           )
         : error.description
     );
+
     setExternalErrors(messages);
   }, [errors, formatMessage]);
 
@@ -245,6 +177,92 @@ function MovieDetailsPage() {
       description: description || "",
     });
   }, [title, image, rating, year, director, genres, description]);
+
+  const backToList = () => {
+    const search =
+      location.state?.fromSearch || location.search.replace(/^\?/, "");
+
+    navigate(
+      {
+        pathname: pagesURLs[pages.moviesPage],
+        search: search ? `?${search}` : "",
+      },
+      { replace: true }
+    );
+  };
+
+  const hasError = useCallback(
+    (code) => validationErrors.some((err) => (err?.code || err) === code),
+    [validationErrors]
+  );
+
+  const getFormatError = (target) =>
+    validationErrors.find(
+      (err) =>
+        err?.code === errorCodes.INVALID_MOVIE_DATA_FORMAT &&
+        err.target === target
+    );
+
+  const getMovieValidationErrors = () => {
+    const errs = [];
+
+    if (!form.title) {
+      errs.push({ code: errorCodes.EMPTY_MOVIE_TITLE });
+    }
+
+    if (!form.directorId) {
+      errs.push({ code: errorCodes.EMPTY_MOVIE_DIRECTOR });
+    }
+
+    if (!form.year) {
+      errs.push({ code: errorCodes.INVALID_MOVIE_YEAR });
+    } else if (Number.isNaN(Number(form.year))) {
+      errs.push({
+        code: errorCodes.INVALID_MOVIE_DATA_FORMAT,
+        field: formatMessage({ id: "field.year" }),
+        format: "number",
+        target: "year",
+      });
+    } else {
+      const yearNum = Number(form.year);
+
+      if (yearNum < MIN_MOVIE_YEAR) {
+        errs.push({ code: errorCodes.MOVIE_YEAR_TOO_LOW });
+      } else if (yearNum > MAX_MOVIE_YEAR) {
+        errs.push({ code: errorCodes.MOVIE_YEAR_TOO_HIGH });
+      }
+    }
+
+    if (!form.rating && form.rating !== 0) {
+      errs.push({ code: errorCodes.INVALID_MOVIE_RATING });
+    } else if (Number.isNaN(Number(form.rating))) {
+      errs.push({
+        code: errorCodes.INVALID_MOVIE_DATA_FORMAT,
+        field: formatMessage({ id: "field.rating" }),
+        format: "number",
+        target: "rating",
+      });
+    } else {
+      const ratingNum = Number(form.rating);
+
+      if (ratingNum < MIN_MOVIE_RATING) {
+        errs.push({ code: errorCodes.MOVIE_RATING_TOO_LOW });
+      } else if (ratingNum > MAX_MOVIE_RATING) {
+        errs.push({ code: errorCodes.MOVIE_RATING_TOO_HIGH });
+      }
+    }
+
+    return errs;
+  };
+
+  const tError = useCallback(
+    (code, values) =>
+      formatMessage(
+        { id: `movie.error.${code}`, defaultMessage: code },
+        values
+      ),
+    [formatMessage]
+  );
 
   const handleCancel = () => {
     if (isNew) {
@@ -267,10 +285,13 @@ function MovieDetailsPage() {
 
   const handleSave = async () => {
     const vErrors = getMovieValidationErrors();
+
     if (vErrors.length) {
       setValidationErrors(vErrors);
+
       return;
     }
+
     setValidationErrors([]);
     setExternalErrors([]);
 
@@ -286,6 +307,7 @@ function MovieDetailsPage() {
           description: form.description,
         })
       );
+
       if (res?.id) {
         navigate(
           {
@@ -302,6 +324,7 @@ function MovieDetailsPage() {
             },
           }
         );
+
         setMode("view");
       }
     } else {
@@ -316,6 +339,7 @@ function MovieDetailsPage() {
           description: form.description,
         })
       );
+
       if (res) {
         setMode("view");
       }
@@ -326,21 +350,23 @@ function MovieDetailsPage() {
     if (hasError(errorCodes.INVALID_MOVIE_RATING))
       return tError(errorCodes.INVALID_MOVIE_RATING);
     if (hasError(errorCodes.MOVIE_RATING_TOO_LOW))
-      return tError(errorCodes.MOVIE_RATING_TOO_LOW, { min: minMovieRating });
+      return tError(errorCodes.MOVIE_RATING_TOO_LOW, { min: MIN_MOVIE_RATING });
     if (hasError(errorCodes.MOVIE_RATING_TOO_HIGH))
-      return tError(errorCodes.MOVIE_RATING_TOO_HIGH, { max: maxMovieRating });
+      return tError(errorCodes.MOVIE_RATING_TOO_HIGH, {
+        max: MAX_MOVIE_RATING,
+      });
     return "";
-  }, [validationErrors, formatMessage]);
+  }, [hasError, tError]);
 
   const yearHelper = useMemo(() => {
     if (hasError(errorCodes.INVALID_MOVIE_YEAR))
       return tError(errorCodes.INVALID_MOVIE_YEAR);
     if (hasError(errorCodes.MOVIE_YEAR_TOO_LOW))
-      return tError(errorCodes.MOVIE_YEAR_TOO_LOW, { min: minMovieYear });
+      return tError(errorCodes.MOVIE_YEAR_TOO_LOW, { min: MIN_MOVIE_YEAR });
     if (hasError(errorCodes.MOVIE_YEAR_TOO_HIGH))
-      return tError(errorCodes.MOVIE_YEAR_TOO_HIGH, { max: maxMovieYear });
+      return tError(errorCodes.MOVIE_YEAR_TOO_HIGH, { max: MAX_MOVIE_YEAR });
     return "";
-  }, [validationErrors, formatMessage]);
+  }, [hasError, tError]);
 
   return (
     <div className={classes.container}>
@@ -367,8 +393,10 @@ function MovieDetailsPage() {
               {title || formatMessage({ id: "movieDetails.title" })}
             </strong>
           </Typography>
+
           <div className={classes.content}>
             {image && <img src={image} alt={title} width={400} />}
+
             <div className={classes.rightContent}>
               {rating && (
                 <Typography>
@@ -441,6 +469,7 @@ function MovieDetailsPage() {
             }
             value={form.title}
           />
+
           <TextField
             label={formatMessage({ id: "field.image" })}
             onChange={({ target }) =>
@@ -448,6 +477,7 @@ function MovieDetailsPage() {
             }
             value={form.image}
           />
+
           <TextField
             required
             label={formatMessage({ id: "field.rating" })}
@@ -470,6 +500,7 @@ function MovieDetailsPage() {
             }
             value={form.rating}
           />
+
           <TextField
             required
             label={formatMessage({ id: "field.year" })}
@@ -515,6 +546,7 @@ function MovieDetailsPage() {
             placeholder={formatMessage({ id: "field.director" })}
             renderValue={(selected) => {
               const dir = directors.find((d) => d.id === selected);
+
               if (!dir) {
                 return (
                   <Typography color={theme.input.color.primary.placeholder}>
@@ -522,6 +554,7 @@ function MovieDetailsPage() {
                   </Typography>
                 );
               }
+
               return (
                 <Typography color={theme.input.color.primary.text.primary}>
                   {dir.name}
@@ -535,8 +568,9 @@ function MovieDetailsPage() {
               </MenuItem>
             ))}
           </Select>
+
           {hasError(errorCodes.EMPTY_MOVIE_DIRECTOR) && (
-            <Typography color="error">
+            <Typography color="error" variant="caption">
               {tError(errorCodes.EMPTY_MOVIE_DIRECTOR)}
             </Typography>
           )}
@@ -572,6 +606,7 @@ function MovieDetailsPage() {
             >
               <Typography>{formatMessage({ id: "btn.cancel" })}</Typography>
             </Button>
+
             <Button onClick={handleSave} variant="primary">
               <Typography color="inherit">
                 <strong>

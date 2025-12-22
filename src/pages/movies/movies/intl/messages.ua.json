@@ -1,9 +1,9 @@
 {
   "btn.addEntity": "Додати фiльм",
   "btn.cancel": "Скасувати",
-  "btn.delete": "Видалити",
   "btn.close": "Закрити",
   "btn.confirm": "Пiдтвердити",
+  "btn.delete": "Видалити",
   "btn.nextPage": "Наступна сторінка",
   "btn.prevPage": "Попередня сторінка",
 
@@ -16,6 +16,6 @@
   "filters.label.yearFrom": "Пошук за роком від",
   "filters.label.yearTo": "Пошук за роком до",
 
-  "movies.title": "Фiльми",
-  "movies.loading": "Завантаження фiльмiв..."
+  "movies.loading": "Завантаження фiльмiв...",
+  "movies.title": "Фiльми"
 }

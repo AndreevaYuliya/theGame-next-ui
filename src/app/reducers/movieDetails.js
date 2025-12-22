@@ -2,6 +2,7 @@ import {
   RECEIVE_MOVIE_DETAILS,
   REQUEST_MOVIE_DETAILS,
   ERROR_MOVIE_DETAILS,
+  CLEAR_MOVIE_DETAILS,
   REQUEST_CREATE_MOVIE,
   SUCCESS_CREATE_MOVIE,
   ERROR_CREATE_MOVIE,
@@ -38,7 +39,7 @@ export default function movieDetailsReducer(state = initialState, action) {
   switch (action.type) {
     case REQUEST_MOVIE_DETAILS:
       return {
-        ...initialState,
+        ...state,
         loading: true,
         errors: [],
       };
@@ -67,6 +68,13 @@ export default function movieDetailsReducer(state = initialState, action) {
         ...initialState,
         loading: false,
         errors: convertErrors(action.payload),
+      };
+
+    case CLEAR_MOVIE_DETAILS:
+      return {
+        ...state,
+        loading: true,
+        errors: [],
       };
 
     case REQUEST_CREATE_MOVIE:

@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from "react";
+
 import { createUseStyles } from "react-jss";
 import { useDispatch, useSelector } from "react-redux";
 import { useIntl } from "react-intl";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
 import actionsMovies from "app/actions/movies";
+
 import useTheme from "misc/hooks/useTheme";
+
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import IconTrash from "components/icons/Trash";
 import IconBack from "components/icons/Back";
 import IconForward from "components/icons/Forward";
-
 import TextField from "components/TextField";
 import Typography from "components/Typography";
 import Link from "components/Link";
+
 import pagesURLs from "constants/pagesURLs";
 import * as pages from "constants/pages";
+import {
+  DEFAULT_MOVIES_PAGE,
+  DEFAULT_MOVIES_SIZE,
+} from "../constants/moviesConstants";
 
-/* ================= STYLES ================= */
 const getClasses = createUseStyles({
   container: ({ theme }) => ({
     display: "flex",
@@ -25,13 +32,6 @@ const getClasses = createUseStyles({
     height: "100%",
     justifyContent: "center",
     color: theme.colors.text.primary,
-  }),
-
-  content: ({ theme }) => ({
-    // width: "100%",
-    // background: theme.pageContainer.content.color.background,
-    // display: "flex",
-    // flexDirection: "column",
   }),
 
   headerRow: {
@@ -161,18 +161,18 @@ const getClasses = createUseStyles({
   }),
 });
 
-/* ================= COMPONENT ================= */
 function MoviesListPage() {
   const { theme } = useTheme();
   const classes = getClasses({ theme });
+
   const { formatMessage } = useIntl();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [searchParams, setSearchParams] = useSearchParams();
 
-  /* ---------- URL (SOURCE OF TRUTH) ---------- */
-  const page = Number(searchParams.get("page") ?? 0);
-  const size = 2;
+  const page = Number(searchParams.get("page") ?? DEFAULT_MOVIES_PAGE);
   const titleFromUrl = searchParams.get("title") ?? "";
   const yearFromUrl = searchParams.get("yearFrom") ?? "";
   const yearToUrl = searchParams.get("yearTo") ?? "";
@@ -182,40 +182,60 @@ function MoviesListPage() {
   );
   const toast = useSelector((s) => s.toast);
 
-  /* ---------- LOCAL FILTER INPUTS ---------- */
   const [title, setTitle] = useState(titleFromUrl);
   const [yearFrom, setYearFrom] = useState(yearFromUrl);
   const [yearTo, setYearTo] = useState(yearToUrl);
 
-  /* sync inputs with URL */
+  const [deleteMovie, setDeleteMovie] = useState(null);
+
   useEffect(() => {
     setTitle(titleFromUrl);
     setYearFrom(yearFromUrl);
     setYearTo(yearToUrl);
   }, [titleFromUrl, yearFromUrl, yearToUrl]);
 
-  /* ---------- FETCH ---------- */
   useEffect(() => {
     const filters = {};
-    if (titleFromUrl) filters.title = titleFromUrl;
-    if (yearFromUrl) filters.yearFrom = yearFromUrl;
-    if (yearToUrl) filters.yearTo = yearToUrl;
+
+    if (titleFromUrl) {
+      filters.title = titleFromUrl;
+    }
+
+    if (yearFromUrl) {
+      filters.yearFrom = yearFromUrl;
+    }
+
+    if (yearToUrl) {
+      filters.yearTo = yearToUrl;
+    }
 
     dispatch(
       actionsMovies.fetchMovies({
         page,
-        size,
+        DEFAULT_MOVIES_SIZE,
         filters,
       })
     );
-  }, [dispatch, page, size, titleFromUrl, yearFromUrl, yearToUrl]);
+  }, [dispatch, page, titleFromUrl, yearFromUrl, yearToUrl]);
 
-  /* ---------- FILTER HANDLERS ---------- */
   const applyFilter = () => {
-    const params = { page: "0", size: String(size) };
-    if (title.trim()) params.title = title.trim();
-    if (yearFrom.trim()) params.yearFrom = yearFrom.trim();
-    if (yearTo.trim()) params.yearTo = yearTo.trim();
+    const params = {
+      page: String(DEFAULT_MOVIES_PAGE),
+      size: String(DEFAULT_MOVIES_SIZE),
+    };
+
+    if (title.trim()) {
+      params.title = title.trim();
+    }
+
+    if (yearFrom.trim()) {
+      params.yearFrom = yearFrom.trim();
+    }
+
+    if (yearTo.trim()) {
+      params.yearTo = yearTo.trim();
+    }
+
     setSearchParams(params);
   };
 
@@ -223,50 +243,91 @@ function MoviesListPage() {
     setTitle("");
     setYearFrom("");
     setYearTo("");
-    setSearchParams({ page: "0", size: String(size) });
+    setSearchParams({
+      page: String(DEFAULT_MOVIES_PAGE),
+      size: String(DEFAULT_MOVIES_SIZE),
+    });
   };
 
-  /* ---------- PAGINATION ---------- */
   const goPrev = () => {
-    if (page === 0) return;
-    const params = { page: String(page - 1), size: String(size) };
-    if (titleFromUrl) params.title = titleFromUrl;
-    if (yearFromUrl) params.yearFrom = yearFromUrl;
-    if (yearToUrl) params.yearTo = yearToUrl;
+    if (page === DEFAULT_MOVIES_PAGE) {
+      return;
+    }
+
+    const params = {
+      page: String(page - 1),
+      size: String(DEFAULT_MOVIES_SIZE),
+    };
+
+    if (titleFromUrl) {
+      params.title = titleFromUrl;
+    }
+
+    if (yearFromUrl) {
+      params.yearFrom = yearFromUrl;
+    }
+
+    if (yearToUrl) {
+      params.yearTo = yearToUrl;
+    }
     setSearchParams(params);
   };
 
   const goNext = () => {
-    if (page + 1 >= totalPages) return;
-    const params = { page: String(page + 1), size: String(size) };
-    if (titleFromUrl) params.title = titleFromUrl;
-    if (yearFromUrl) params.yearFrom = yearFromUrl;
-    if (yearToUrl) params.yearTo = yearToUrl;
+    if (page + 1 >= totalPages) {
+      return;
+    }
+
+    const params = {
+      page: String(page + 1),
+      size: String(DEFAULT_MOVIES_SIZE),
+    };
+
+    if (titleFromUrl) {
+      params.title = titleFromUrl;
+    }
+
+    if (yearFromUrl) {
+      params.yearFrom = yearFromUrl;
+    }
+
+    if (yearToUrl) {
+      params.yearTo = yearToUrl;
+    }
     setSearchParams(params);
   };
 
-  /* ---------- DELETE ---------- */
-  const [deleteMovie, setDeleteMovie] = useState(null);
-
   const confirmDelete = async () => {
     const ok = await dispatch(actionsMovies.fetchDeleteMovie(deleteMovie.id));
+
     if (ok) {
       setDeleteMovie(null);
-      // если после удаления на странице не останется элементов и есть предыдущая страница — вернуть на неё
-      if (items.length === 1 && page > 0) {
-        const params = { page: String(page - 1), size: String(size) };
-        if (titleFromUrl) params.title = titleFromUrl;
-        if (yearFromUrl) params.yearFrom = yearFromUrl;
-        if (yearToUrl) params.yearTo = yearToUrl;
+
+      if (items.length === 1 && page > DEFAULT_MOVIES_PAGE) {
+        const params = {
+          page: String(page - 1),
+          size: String(DEFAULT_MOVIES_SIZE),
+        };
+
+        if (titleFromUrl) {
+          params.title = titleFromUrl;
+        }
+
+        if (yearFromUrl) {
+          params.yearFrom = yearFromUrl;
+        }
+
+        if (yearToUrl) {
+          params.yearTo = yearToUrl;
+        }
+
         setSearchParams(params);
       }
     }
   };
 
-  /* ---------- RENDER ---------- */
   return (
     <div className={classes.container}>
-      {/* HEADER */}
       <div className={classes.headerRow}>
         <Typography variant="title">
           <strong>{formatMessage({ id: "movies.title" })}</strong>
@@ -289,7 +350,6 @@ function MoviesListPage() {
         </Link>
       </div>
 
-      {/* FILTER */}
       <div className={classes.filterBox}>
         <div className={classes.filterFields}>
           <TextField
@@ -299,6 +359,7 @@ function MoviesListPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+
           <TextField
             fullWidth
             label={formatMessage({ id: "filters.label.yearFrom" })}
@@ -306,6 +367,7 @@ function MoviesListPage() {
             value={yearFrom}
             onChange={(e) => setYearFrom(e.target.value)}
           />
+
           <TextField
             fullWidth
             label={formatMessage({ id: "filters.label.yearTo" })}
@@ -336,7 +398,6 @@ function MoviesListPage() {
         </div>
       </div>
 
-      {/* LIST */}
       <div className={classes.list}>
         {loading && <div>{formatMessage({ id: "movies.loading" })}</div>}
 
@@ -348,7 +409,9 @@ function MoviesListPage() {
               onClick={() =>
                 navigate(
                   {
-                    pathname: `${pagesURLs[pages.movieDetailsPage]}/${movie.id}`,
+                    pathname: `${pagesURLs[pages.movieDetailsPage]}/${
+                      movie.id
+                    }`,
                     search: searchParams.toString()
                       ? `?${searchParams.toString()}`
                       : "",
@@ -362,6 +425,7 @@ function MoviesListPage() {
 
                 <div>
                   <b>{movie.title}</b>
+
                   <div>{movie.yearReleased}</div>
                 </div>
               </div>
@@ -379,11 +443,10 @@ function MoviesListPage() {
           ))}
       </div>
 
-      {/* PAGINATION */}
       <div className={classes.pagination}>
         <Button
           colorVariant="primary"
-          disabled={page === 0 || loading}
+          disabled={page === DEFAULT_MOVIES_PAGE || loading}
           onClick={goPrev}
           variant="secondary"
           className={classes.button}
@@ -414,7 +477,6 @@ function MoviesListPage() {
         </Button>
       </div>
 
-      {/* DELETE MODAL */}
       {deleteMovie && (
         <div
           className={classes.modalOverlay}
@@ -422,6 +484,7 @@ function MoviesListPage() {
         >
           <div className={classes.modal} onClick={(e) => e.stopPropagation()}>
             <h3>{formatMessage({ id: "delete.confirmTitle" })}</h3>
+
             <p>
               {formatMessage(
                 { id: "delete.confirmationMessage" },
@@ -441,6 +504,7 @@ function MoviesListPage() {
               >
                 <Typography>{formatMessage({ id: "btn.cancel" })}</Typography>
               </Button>
+
               <Button
                 colorVariant="primary"
                 onClick={confirmDelete}
@@ -458,9 +522,7 @@ function MoviesListPage() {
         </div>
       )}
 
-      {/* TOAST */}
       {toast?.visible && <div className={classes.toast}>{toast.message}</div>}
-      {/* </div> */}
     </div>
   );
 }
