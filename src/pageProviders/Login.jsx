@@ -1,12 +1,12 @@
-import * as pages from 'constants/pages';
-import { useSelector } from 'react-redux';
-import LoginPage from 'pages/login';
-import pagesURLs from 'constants/pagesURLs';
-import React, { useEffect } from 'react';
-import useChangePage from 'misc/hooks/useChangePage';
-import useLocationSearch from 'misc/hooks/useLocationSearch';
+import * as pages from "constants/pages";
+import { useSelector } from "react-redux";
+import LoginPage from "pages/login";
+import pagesURLs from "constants/pagesURLs";
+import React, { useEffect } from "react";
+import useChangePage from "misc/hooks/useChangePage";
+import useLocationSearch from "misc/hooks/useLocationSearch";
 
-import PageContainer from './components/PageContainer';
+import PageContainer from "./components/PageContainer";
 
 const Login = (props) => {
   const locationSearch = useLocationSearch();
@@ -19,8 +19,9 @@ const Login = (props) => {
         locationSearch: locationSearch.redirectLocationSearch
           ? JSON.parse(locationSearch.redirectLocationSearch)
           : locationSearch,
-        pathname: locationSearch.redirectPathname
-          || `${pagesURLs[pages.defaultPage]}`,
+
+        pathname:
+          locationSearch.redirectPathname || `${pagesURLs[pages.defaultPage]}`,
         replace: true,
       });
     }
@@ -28,11 +29,7 @@ const Login = (props) => {
 
   return (
     <PageContainer>
-      {user.isAuthorized
-        ? null
-        : (
-          <LoginPage {...props} />
-        )}
+      {user.isAuthorized ? null : <LoginPage {...props} />}
     </PageContainer>
   );
 };

@@ -83,9 +83,12 @@ const rightPanelItemTypes = {
 
 function Header({ onLogout }) {
   const { theme } = useTheme();
+
   const { formatMessage } = useIntl();
   const changePage = useChangePage();
+
   const classes = getClasses({ theme });
+
   const currentPage = useCurrentPage();
   const isMobile = useIsMobile();
   const langsMenuRef = useRef(null);
@@ -102,17 +105,20 @@ function Header({ onLogout }) {
 
   const actualOrderedRightPanelItemTypes = useMemo(() => {
     const result = [];
+
     if (user.isAuthorized) {
       result.push(rightPanelItemTypes.USER_NAME);
     } else if (!user.isFetchingUser && currentPage !== pages.login) {
       result.push(rightPanelItemTypes.LOGIN);
     }
     result.push(rightPanelItemTypes.LANGUAGE);
+
     return result.reduce((acc, item, index) => {
       if (index > 0) {
         acc.push(rightPanelItemTypes.SEPARATOR);
       }
       acc.push(item);
+
       return acc;
     }, []);
   }, [user, currentPage]);
@@ -122,6 +128,7 @@ function Header({ onLogout }) {
       <div className={classes.content}>
         <div className={classes.toolBarContainerLeft}>
           <LeftNavBar />
+
           <Link
             to={{
               pathname: `${pagesURLs[pages.defaultPage]}`,
@@ -134,6 +141,7 @@ function Header({ onLogout }) {
             </Hover>
           </Link>
         </div>
+
         <div className={classes.toolBarContainerRight}>
           {actualOrderedRightPanelItemTypes.map((itemType) => (
             <>
@@ -159,6 +167,7 @@ function Header({ onLogout }) {
                   </Hover>
                 </div>
               )}
+
               {itemType === rightPanelItemTypes.LOGIN && (
                 <Link
                   to={{
@@ -172,6 +181,7 @@ function Header({ onLogout }) {
                   </Button>
                 </Link>
               )}
+
               {itemType === rightPanelItemTypes.LANGUAGE && (
                 <>
                   <div className={classes.selectedLang}>
@@ -183,6 +193,7 @@ function Header({ onLogout }) {
                       }
                     </Typography>
                   </div>
+
                   <div ref={langsMenuRef}>
                     <IconButton
                       colorVariant="header"
@@ -198,6 +209,7 @@ function Header({ onLogout }) {
                   </div>
                 </>
               )}
+
               {itemType === rightPanelItemTypes.SEPARATOR && (
                 <Typography color="paper" variant="subtitle">
                   <strong>|</strong>
@@ -206,6 +218,7 @@ function Header({ onLogout }) {
             </>
           ))}
         </div>
+
         <Menu
           anchorEl={langsMenuRef.current}
           colorVariant="header"
@@ -227,6 +240,7 @@ function Header({ onLogout }) {
                   },
                   replace: true,
                 });
+
                 setState({
                   ...state,
                   isLangsMenuOpened: false,
@@ -238,6 +252,7 @@ function Header({ onLogout }) {
             </MenuItem>
           ))}
         </Menu>
+
         <Menu
           anchorEl={userMenuRef.current}
           open={state.isUserMenuOpened}

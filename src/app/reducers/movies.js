@@ -47,10 +47,15 @@ export default function moviesReducer(state = initialState, action) {
       };
 
     case REQUEST_DELETE_MOVIE:
-      return { ...state, deletingId: action.payload.id, deleteError: null };
+      return {
+        ...state,
+        deletingId: action.payload.id,
+        deleteError: null,
+      };
 
     case SUCCESS_DELETE_MOVIE: {
       const totalElements = Math.max(0, state.totalElements - 1);
+
       const totalPages = Math.max(1, Math.ceil(totalElements / state.size));
 
       return {

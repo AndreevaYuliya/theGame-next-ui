@@ -8,7 +8,9 @@ import MoviesList from "./containers/MoviesList";
 
 function Index(props) {
   const { lang } = useLocationSearch();
+
   const messages = useMemo(() => getMessages(lang), [lang]);
+
   return (
     <IntlProvider messages={messages}>
       <MoviesList {...props} />

@@ -46,6 +46,7 @@ export default function movieDetailsReducer(state = initialState, action) {
 
     case RECEIVE_MOVIE_DETAILS:
       const movie = action.payload;
+
       return {
         ...state,
         loading: false,

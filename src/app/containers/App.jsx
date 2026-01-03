@@ -23,6 +23,7 @@ import SearchParamsConfigurator from "../components/SearchParamsConfigurator";
 
 function App() {
   const dispatch = useDispatch();
+
   const [state, setState] = useState({
     componentDidMount: false,
   });
@@ -40,7 +41,9 @@ function App() {
     addAxiosInterceptors({
       onSignOut: () => dispatch(actionsUser.fetchSignOut()),
     });
+
     dispatch(actionsUser.fetchUser());
+
     setState({
       ...state,
       componentDidMount: true,
@@ -56,14 +59,17 @@ function App() {
             {/* This is needed to let first render passed for App's
              * configuration process will be finished (e.g. locationQuery
              * initializing) */}
+
             {state.componentDidMount && (
               <IntlProvider>
                 <Header onLogout={() => dispatch(actionsUser.fetchSignOut())} />
+
                 {isFetchingUser && (
                   <PageContainer>
                     <Loading />
                   </PageContainer>
                 )}
+
                 {!isFetchingUser && (
                   <Routes>
                     <Route
@@ -75,14 +81,17 @@ function App() {
                       element={<MoviesPage />}
                       path={`${pageURLs[pages.moviesPage]}`}
                     />
+
                     <Route
                       element={<MovieDetailsPage />}
                       path={`${pageURLs[pages.movieDetailsPage]}/:movieId`}
                     />
+
                     <Route
                       element={<SecretPage />}
                       path={`${pageURLs[pages.secretPage]}`}
                     />
+
                     <Route
                       element={
                         <LoginPage
@@ -121,6 +130,7 @@ function App() {
                       }
                       path={`${pageURLs[pages.login]}`}
                     />
+
                     <Route
                       element={
                         <MissedPage

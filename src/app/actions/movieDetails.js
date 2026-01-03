@@ -138,64 +138,79 @@ const fetchDirectors = () => async (dispatch) => {
   }
 };
 
-const fetchCreateMovie = (movieData) => async (dispatch) => {
-  dispatch(createMovieRequest());
+const fetchCreateMovie =
+  (movieData, { successMessage, errorMessage } = {}) =>
+  async (dispatch) => {
+    dispatch(createMovieRequest());
 
-  try {
-    const response = await createMovie(movieData);
-    const data = response?.data ?? response;
+    try {
+      const response = await createMovie(movieData);
+      const data = response?.data ?? response;
 
-    dispatch(createMovieSuccess(data));
-    dispatch(toastActions.showToast("Movie created successfully"));
+      dispatch(createMovieSuccess(data));
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+      dispatch(
+        toastActions.showToast(successMessage ?? "Movie created successfully")
+      );
 
-    return data;
-  } catch (errors) {
-    const message =
-      errors?.response?.data?.message ||
-      errors?.response?.data ||
-      errors?.message ||
-      "Creation failed";
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
 
-    dispatch(createMovieError({ message }));
-    dispatch(toastActions.showToast(message));
+      return data;
+    } catch (errors) {
+      const message =
+        errors?.response?.data?.message ||
+        errors?.response?.data ||
+        errors?.message ||
+        errorMessage ||
+        "Failed to create movie";
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+      dispatch(createMovieError({ message }));
 
-    return false;
-  }
-};
+      dispatch(toastActions.showToast(message));
 
-const fetchUpdateMovie = (id, movieData) => async (dispatch) => {
-  dispatch(updateMovieRequest(id));
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
 
-  try {
-    const response = await updateMovie(id, movieData);
-    const data = response?.data ?? response;
+      return false;
+    }
+  };
 
-    dispatch(updateMovieSuccess(id));
-    dispatch(receiveMovieDetails(data));
-    dispatch(toastActions.showToast("Movie updated successfully"));
+const fetchUpdateMovie =
+  (id, movieData, { successMessage, errorMessage } = {}) =>
+  async (dispatch) => {
+    dispatch(updateMovieRequest(id));
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+    try {
+      const response = await updateMovie(id, movieData);
+      const data = response?.data ?? response;
 
-    return data;
-  } catch (errors) {
-    const message =
-      errors?.response?.data?.message ||
-      errors?.response?.data ||
-      errors?.message ||
-      "Update failed";
+      dispatch(updateMovieSuccess(id));
 
-    dispatch(updateMovieError({ message }));
-    dispatch(toastActions.showToast(message));
+      dispatch(receiveMovieDetails(data));
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+      dispatch(
+        toastActions.showToast(successMessage ?? "Movie updated successfully")
+      );
 
-    return false;
-  }
-};
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+
+      return data;
+    } catch (errors) {
+      const message =
+        errors?.response?.data?.message ||
+        errors?.response?.data ||
+        errors?.message ||
+        errorMessage ||
+        "Failed to update movie";
+
+      dispatch(updateMovieError({ message }));
+
+      dispatch(toastActions.showToast(message));
+
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+
+      return false;
+    }
+  };
 
 const movieDetailsActions = {
   fetchMovieDetails,

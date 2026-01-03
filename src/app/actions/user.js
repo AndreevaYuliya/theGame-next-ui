@@ -75,11 +75,13 @@ const requestSignOut = () => ({
 
 const getUser = () => {
   const { USERS_SERVICE } = config;
+
   return axios.get(`${USERS_SERVICE}/user/get`);
 };
 
 const signIn = ({ email, login, password }) => {
   const { USERS_SERVICE } = config;
+
   return axios.post(`${USERS_SERVICE}/user/signIn`, {
     email,
     login,
@@ -89,6 +91,7 @@ const signIn = ({ email, login, password }) => {
 
 const signUp = ({ email, firstName, lastName, login, password }) => {
   const { USERS_SERVICE } = config;
+
   return axios.post(`${USERS_SERVICE}/user/signUp`, {
     email,
     firstName,
@@ -104,6 +107,7 @@ const fetchSignIn =
   ({ email, login, password }) =>
   (dispatch) => {
     dispatch(requestSignIn());
+
     return signIn({
       email,
       login,
@@ -125,8 +129,11 @@ const fetchSignIn =
       })
       .then(({ token, user }) => {
         storage.setItem(keys.TOKEN, token.value);
+
         storage.setItem(keys.TOKEN_EXPIRATION, token.expirationTimestamp);
+
         storage.setItem("USER", JSON.stringify(user)); // TODO: mocked code
+
         dispatch(successSignIn(user));
       })
       .catch((errors) => dispatch(errorSignIn(errors)));
@@ -134,8 +141,11 @@ const fetchSignIn =
 
 const fetchSignOut = () => (dispatch) => {
   storage.removeItem(keys.TOKEN);
+
   storage.removeItem(keys.TOKEN_EXPIRATION);
+
   storage.removeItem("USER"); // TODO: Mocked code
+
   dispatch(requestSignOut());
 };
 
@@ -143,6 +153,7 @@ const fetchSignUp =
   ({ email, firstName, lastName, login, password }) =>
   (dispatch) => {
     dispatch(requestSignUp());
+
     return signUp({
       email,
       firstName,
@@ -158,14 +169,18 @@ const fetchUser = () => (dispatch) => {
   if (!storage.getItem(keys.TOKEN)) {
     return null;
   }
+
   dispatch(requestUser());
+
   return (
     getUser()
       // TODO Mocked '.catch()' section
       .catch((err) => {
         const user = storage.getItem("USER");
+
         if (user) {
           const parsedUser = JSON.parse(user);
+
           return parsedUser;
         }
         return Promise.reject(err);

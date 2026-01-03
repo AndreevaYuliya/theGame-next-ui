@@ -27,6 +27,7 @@ function Default() {
   return (
     <>
       <Typography>{formatMessage({ id: "title" })}</Typography>
+
       <div className={classes.content}>
         <Link
           to={{

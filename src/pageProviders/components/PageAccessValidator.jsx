@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import * as pages from 'constants/pages';
-import pagesURLs from 'constants/pagesURLs';
-import useAccessValidate, { authModes } from 'misc/hooks/useAccessValidate';
-import useChangePage from 'misc/hooks/useChangePage';
-import useLocationSearch from 'misc/hooks/useLocationSearch';
+import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import * as pages from "constants/pages";
+import pagesURLs from "constants/pagesURLs";
+import useAccessValidate, { authModes } from "misc/hooks/useAccessValidate";
+import useChangePage from "misc/hooks/useChangePage";
+import useLocationSearch from "misc/hooks/useLocationSearch";
 
 function PageAccessValidator({
   neededAuthorities = [],
@@ -17,11 +17,9 @@ function PageAccessValidator({
   const locationSearch = useLocationSearch();
   const validateAccess = useAccessValidate();
 
-  const {
-    isFetchingSignIn,
-    isFetchingUser,
-    isAuthorized,
-  } = useSelector(({ user }) => user);
+  const { isFetchingSignIn, isFetchingUser, isAuthorized } = useSelector(
+    ({ user }) => user
+  );
 
   const [state, setState] = useState({
     isValid: false,
@@ -38,11 +36,13 @@ function PageAccessValidator({
         changePage({
           locationSearch: {
             ...locationSearch,
-            redirectLocationSearch: locationSearch.redirectLocationSearch
-              || JSON.stringify(locationSearch),
-            redirectPathname: locationSearch.redirectPathname
-              || location.pathname,
+            redirectLocationSearch:
+              locationSearch.redirectLocationSearch ||
+              JSON.stringify(locationSearch),
+            redirectPathname:
+              locationSearch.redirectPathname || location.pathname,
           },
+
           pathname: `${pagesURLs[pages.login]}`,
           replace: true,
         });
@@ -51,7 +51,7 @@ function PageAccessValidator({
           pathname: `${pagesURLs[pages.defaultPage]}`,
         });
       } else {
-        setState(prevState => ({
+        setState((prevState) => ({
           ...prevState,
           isValid: true,
         }));
@@ -59,11 +59,7 @@ function PageAccessValidator({
     }
   }, [isFetchingUser, isAuthorized, hasAccess]);
 
-  return (
-    <>
-      {state.isValid ? children : null}
-    </>
-  );
+  return <>{state.isValid ? children : null}</>;
 }
 
 export default PageAccessValidator;

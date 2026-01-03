@@ -34,5 +34,25 @@
   "movie.error.MOVIE_RATING_TOO_LOW": "Rating must be at least {min}",
 
   "movie.error.MOVIE_YEAR_TOO_HIGH": "Year must be less or equal to {max}",
-  "movie.error.MOVIE_YEAR_TOO_LOW": "Year must be greater or equal to {min}"
+  "movie.error.MOVIE_YEAR_TOO_LOW": "Year must be greater or equal to {min}",
+
+  "review.field.author": "Name",
+  "review.field.comment": "Comment",
+  "review.field.rating": "Rating",
+  "review.btn.add": "Add review",
+  "review.btn.more": "Show more",
+  "review.section.title": "Reviews",
+  "review.section.total": "total {count}",
+  "review.empty": "No reviews yet",
+  "review.error.authorRequired": "Name is required",
+  "review.error.ratingRequired": "Rating is required",
+  "review.error.ratingRange": "Rating must be between 0 and 10",
+
+  "toast.movieCreateSuccess": "Movie created successfully",
+  "toast.movieCreateError": "Failed to create movie",
+  "toast.movieUpdateSuccess": "Movie updated successfully",
+  "toast.movieUpdateError": "Failed to update movie",
+  "toast.reviewCreateSuccess": "Review added",
+  "toast.reviewCreateError": "Failed to add review",
+  "toast.reviewLoadError": "Failed to load reviews"
 }

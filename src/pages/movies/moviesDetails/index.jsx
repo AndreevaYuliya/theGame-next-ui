@@ -8,6 +8,7 @@ import MovieDetails from "./containers/MovieDetails";
 
 function Index(props) {
   const { lang } = useLocationSearch();
+
   const messages = useMemo(() => getMessages(lang), [lang]);
 
   return (

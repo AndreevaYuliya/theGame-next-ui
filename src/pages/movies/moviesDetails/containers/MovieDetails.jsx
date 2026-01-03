@@ -8,6 +8,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useTheme from "misc/hooks/useTheme";
 
 import actionsMovieDetails from "app/actions/movieDetails";
+import actionsReviews from "app/actions/reviews";
+import { RECEIVE_REVIEWS } from "app/constants/actionTypes";
 
 import Typography from "components/Typography";
 import Button from "components/Button";
@@ -82,6 +84,37 @@ const getClasses = createUseStyles((theme) => ({
     border: `1px solid ${theme.pageContainer.border}`,
     zIndex: 1100,
   }),
+
+  reviewsBox: ({ theme }) => ({
+    marginTop: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderRadius: 12,
+    border: `1px solid ${theme.pageContainer.border}`,
+    background: theme.colors.background.secondary,
+  }),
+
+  reviewList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    marginTop: 10,
+    marginBottom: 12,
+  },
+
+  reviewCard: ({ theme }) => ({
+    padding: 10,
+    borderRadius: 10,
+    border: `1px solid ${theme.pageContainer.border}`,
+    background: theme.colors.background.edit,
+  }),
+
+  reviewForm: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: 10,
+    alignItems: "center",
+    marginTop: 12,
+  },
 }));
 
 function MovieDetailsPage() {
@@ -91,8 +124,11 @@ function MovieDetailsPage() {
   const classes = getClasses({ theme });
 
   const navigate = useNavigate();
+
   const location = useLocation();
+
   const dispatch = useDispatch();
+
   const { movieId } = useParams();
 
   const isNew = movieId === "new";
@@ -108,9 +144,13 @@ function MovieDetailsPage() {
     loading,
     errors,
   } = useSelector((s) => s.movieDetails);
+
   const toast = useSelector((s) => s.toast);
 
+  const { items: reviewItems, counts } = useSelector((s) => s.reviews);
+
   const [mode, setMode] = useState(isNew ? "edit" : "view");
+
   const [form, setForm] = useState({
     title: "",
     image: "",
@@ -121,9 +161,19 @@ function MovieDetailsPage() {
     genres: "",
     description: "",
   });
+
   const [validationErrors, setValidationErrors] = useState([]);
   const [externalErrors, setExternalErrors] = useState([]);
+
   const [directors, setDirectors] = useState([]);
+  const [reviewForm, setReviewForm] = useState({
+    author: "",
+    comment: "",
+    rating: "",
+  });
+
+  const [reviewsFrom, setReviewsFrom] = useState(0);
+  const [reviewErrors, setReviewErrors] = useState({});
 
   useEffect(() => {
     dispatch(actionsMovieDetails.fetchDirectors()).then((res) => {
@@ -140,10 +190,38 @@ function MovieDetailsPage() {
   useEffect(() => {
     if (!isNew) {
       dispatch(actionsMovieDetails.fetchMovieDetails(movieId));
+
+      dispatch({
+        type: RECEIVE_REVIEWS,
+        payload: { items: [], from: 0 },
+      });
+
+      dispatch(actionsReviews.fetchCounts([movieId])).then((c) => {
+        if (!c || c[movieId] === undefined) {
+          setReviewsFrom(0);
+        }
+      });
+
+      dispatch(
+        actionsReviews.fetchReviews({
+          movieId,
+          from: 0,
+          size: 5,
+          errorMessage: formatMessage({
+            id: "toast.reviewLoadError",
+            defaultMessage: "Failed to load reviews",
+          }),
+        })
+      ).then((data) => setReviewsFrom(data?.length ?? 0));
     } else {
       dispatch(actionsMovieDetails.receiveMovieDetails({}));
+
+      dispatch({
+        type: RECEIVE_REVIEWS,
+        payload: { items: [], from: 0 },
+      });
     }
-  }, [dispatch, isNew, movieId]);
+  }, [dispatch, isNew, movieId, formatMessage]);
 
   useEffect(() => {
     if (!errors || errors.length === 0) {
@@ -153,6 +231,7 @@ function MovieDetailsPage() {
     }
 
     const errorCodeValues = Object.values(errorCodes);
+
     const messages = errors.map((error) =>
       errorCodeValues.includes(error.code)
         ? formatMessage(
@@ -187,8 +266,101 @@ function MovieDetailsPage() {
         pathname: pagesURLs[pages.moviesPage],
         search: search ? `?${search}` : "",
       },
+
       { replace: true }
     );
+  };
+
+  const loadMoreReviews = () => {
+    dispatch(
+      actionsReviews.fetchReviews({
+        movieId,
+        from: reviewsFrom,
+        size: 5,
+        errorMessage: formatMessage({
+          id: "toast.reviewLoadError",
+          defaultMessage: "Failed to load reviews",
+        }),
+      })
+    ).then((data) => setReviewsFrom((prev) => prev + (data?.length ?? 0)));
+  };
+
+  const handleCreateReview = async () => {
+    const errs = {};
+
+    if (!reviewForm.author.trim()) {
+      errs.author = formatMessage({
+        id: "review.error.authorRequired",
+        defaultMessage: "Author is required",
+      });
+    }
+
+    const ratingNum = Number(reviewForm.rating);
+
+    if (reviewForm.rating === "" || Number.isNaN(ratingNum)) {
+      errs.rating = formatMessage({
+        id: "review.error.ratingRequired",
+        defaultMessage: "Rating is required",
+      });
+    } else if (ratingNum < 0 || ratingNum > 10) {
+      errs.rating = formatMessage({
+        id: "review.error.ratingRange",
+        defaultMessage: "Rating must be 0-10",
+      });
+    }
+
+    if (Object.keys(errs).length) {
+      setReviewErrors(errs);
+
+      return;
+    }
+
+    setReviewErrors({});
+
+    try {
+      await dispatch(
+        actionsReviews.createReview(
+          {
+            movieId,
+            author: reviewForm.author.trim(),
+            comment: reviewForm.comment,
+            rating: Number(reviewForm.rating),
+          },
+
+          {
+            successMessage: formatMessage({
+              id: "toast.reviewCreateSuccess",
+              defaultMessage: "Review added",
+            }),
+
+            errorMessage: formatMessage({
+              id: "toast.reviewCreateError",
+              defaultMessage: "Failed to add review",
+            }),
+          }
+        )
+      );
+
+      setReviewForm({ author: "", comment: "", rating: "" });
+
+      setReviewsFrom(0);
+
+      await dispatch(actionsReviews.fetchCounts([movieId]));
+
+      await dispatch(
+        actionsReviews.fetchReviews({
+          movieId,
+          from: 0,
+          size: 5,
+          errorMessage: formatMessage({
+            id: "toast.reviewLoadError",
+            defaultMessage: "Failed to load reviews",
+          }),
+        })
+      ).then((data) => setReviewsFrom(data?.length ?? 0));
+    } catch {
+      /* handled in action */
+    }
   };
 
   const hasError = useCallback(
@@ -261,6 +433,7 @@ function MovieDetailsPage() {
         { id: `movie.error.${code}`, defaultMessage: code },
         values
       ),
+
     [formatMessage]
   );
 
@@ -270,6 +443,7 @@ function MovieDetailsPage() {
     } else {
       setValidationErrors([]);
       setExternalErrors([]);
+
       setForm({
         title: title || "",
         image: image || "",
@@ -279,6 +453,7 @@ function MovieDetailsPage() {
         genres: genres || "",
         description: description || "",
       });
+
       setMode("view");
     }
   };
@@ -297,21 +472,36 @@ function MovieDetailsPage() {
 
     if (isNew) {
       const res = await dispatch(
-        actionsMovieDetails.fetchCreateMovie({
-          title: form.title,
-          image: form.image,
-          rating: Number(form.rating),
-          yearReleased: Number(form.year),
-          directorId: form.directorId,
-          genres: form.genres,
-          description: form.description,
-        })
+        actionsMovieDetails.fetchCreateMovie(
+          {
+            title: form.title,
+            image: form.image,
+            rating: Number(form.rating),
+            yearReleased: Number(form.year),
+            directorId: form.directorId,
+            genres: form.genres,
+            description: form.description,
+          },
+
+          {
+            successMessage: formatMessage({
+              id: "toast.movieCreateSuccess",
+              defaultMessage: "Movie created successfully",
+            }),
+
+            errorMessage: formatMessage({
+              id: "toast.movieCreateError",
+              defaultMessage: "Failed to create movie",
+            }),
+          }
+        )
       );
 
       if (res?.id) {
         navigate(
           {
             pathname: `${pagesURLs[pages.movieDetailsPage]}/${res.id}`,
+
             search: location.state?.fromSearch
               ? `?${location.state.fromSearch}`
               : location.search,
@@ -329,15 +519,31 @@ function MovieDetailsPage() {
       }
     } else {
       const res = await dispatch(
-        actionsMovieDetails.fetchUpdateMovie(movieId, {
-          title: form.title,
-          image: form.image,
-          rating: Number(form.rating),
-          yearReleased: Number(form.year),
-          directorId: form.directorId,
-          genres: form.genres,
-          description: form.description,
-        })
+        actionsMovieDetails.fetchUpdateMovie(
+          movieId,
+
+          {
+            title: form.title,
+            image: form.image,
+            rating: Number(form.rating),
+            yearReleased: Number(form.year),
+            directorId: form.directorId,
+            genres: form.genres,
+            description: form.description,
+          },
+
+          {
+            successMessage: formatMessage({
+              id: "toast.movieUpdateSuccess",
+              defaultMessage: "Movie updated successfully",
+            }),
+
+            errorMessage: formatMessage({
+              id: "toast.movieUpdateError",
+              defaultMessage: "Failed to update movie",
+            }),
+          }
+        )
       );
 
       if (res) {
@@ -349,22 +555,28 @@ function MovieDetailsPage() {
   const ratingHelper = useMemo(() => {
     if (hasError(errorCodes.INVALID_MOVIE_RATING))
       return tError(errorCodes.INVALID_MOVIE_RATING);
+
     if (hasError(errorCodes.MOVIE_RATING_TOO_LOW))
       return tError(errorCodes.MOVIE_RATING_TOO_LOW, { min: MIN_MOVIE_RATING });
+
     if (hasError(errorCodes.MOVIE_RATING_TOO_HIGH))
       return tError(errorCodes.MOVIE_RATING_TOO_HIGH, {
         max: MAX_MOVIE_RATING,
       });
+
     return "";
   }, [hasError, tError]);
 
   const yearHelper = useMemo(() => {
     if (hasError(errorCodes.INVALID_MOVIE_YEAR))
       return tError(errorCodes.INVALID_MOVIE_YEAR);
+
     if (hasError(errorCodes.MOVIE_YEAR_TOO_LOW))
       return tError(errorCodes.MOVIE_YEAR_TOO_LOW, { min: MIN_MOVIE_YEAR });
+
     if (hasError(errorCodes.MOVIE_YEAR_TOO_HIGH))
       return tError(errorCodes.MOVIE_YEAR_TOO_HIGH, { max: MAX_MOVIE_YEAR });
+
     return "";
   }, [hasError, tError]);
 
@@ -387,7 +599,7 @@ function MovieDetailsPage() {
           {formatMessage({ id: "movieDetails.loading" }) || "Loading..."}
         </div>
       ) : mode === "view" ? (
-        <div>
+        <>
           <Typography variant="title" color="inherit">
             <strong>
               {title || formatMessage({ id: "movieDetails.title" })}
@@ -452,7 +664,149 @@ function MovieDetailsPage() {
               {description}
             </Typography>
           )}
-        </div>
+
+          {!isNew && (
+            <div className={classes.reviewsBox}>
+              <Typography variant="subtitle">
+                <strong>
+                  {formatMessage({
+                    id: "review.section.title",
+                    defaultMessage: "Reviews",
+                  })}
+                </strong>
+
+                {counts && counts[movieId] !== undefined
+                  ? ` - ${formatMessage(
+                      {
+                        id: "review.section.total",
+                        defaultMessage: "total {count}",
+                      },
+
+                      { count: counts[movieId] }
+                    )}`
+                  : ""}
+              </Typography>
+
+              <div className={classes.reviewList}>
+                {reviewItems.length === 0 && (
+                  <Typography color="inherit">
+                    {formatMessage({
+                      id: "review.empty",
+                      defaultMessage: "No reviews yet",
+                    })}
+                  </Typography>
+                )}
+
+                {reviewItems.map((rev) => (
+                  <div key={rev._id} className={classes.reviewCard}>
+                    <Typography>
+                      <strong>{rev.author}</strong> - {rev.rating}/10
+                    </Typography>
+
+                    {rev.comment && (
+                      <Typography color="inherit">{rev.comment}</Typography>
+                    )}
+
+                    <Typography variant="caption" color="inherit">
+                      {new Date(rev.createdAt).toLocaleString()}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                colorVariant="primary"
+                onClick={loadMoreReviews}
+                variant="secondary"
+                disabled={reviewItems.length >= (counts?.[movieId] || 0)}
+              >
+                <Typography color="inherit">
+                  {formatMessage({
+                    id: "review.btn.more",
+                    defaultMessage: "Show more",
+                  })}
+                </Typography>
+              </Button>
+
+              <div className={classes.reviewForm}>
+                <div>
+                  <TextField
+                    required
+                    label={formatMessage({
+                      id: "review.field.author",
+                      defaultMessage: "Name",
+                    })}
+                    value={reviewForm.author}
+                    onChange={(e) =>
+                      setReviewForm((prev) => ({
+                        ...prev,
+                        author: e.target.value,
+                      }))
+                    }
+                  />
+
+                  {reviewErrors.author && (
+                    <Typography color="error" variant="caption">
+                      {reviewErrors.author}
+                    </Typography>
+                  )}
+                </div>
+
+                <div>
+                  <TextField
+                    label={formatMessage({
+                      id: "review.field.comment",
+                      defaultMessage: "Comment",
+                    })}
+                    value={reviewForm.comment}
+                    onChange={(e) =>
+                      setReviewForm((prev) => ({
+                        ...prev,
+                        comment: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <TextField
+                    required
+                    label={formatMessage({
+                      id: "review.field.rating",
+                      defaultMessage: "Rating",
+                    })}
+                    value={reviewForm.rating}
+                    onChange={(e) =>
+                      setReviewForm((prev) => ({
+                        ...prev,
+                        rating: e.target.value,
+                      }))
+                    }
+                  />
+
+                  {reviewErrors.rating && (
+                    <Typography color="error" variant="caption">
+                      {reviewErrors.rating}
+                    </Typography>
+                  )}
+                </div>
+
+                <Button
+                  colorVariant="primary"
+                  variant="primary"
+                  onClick={handleCreateReview}
+                >
+                  <Typography color="inherit">
+                    {formatMessage({
+                      id: "review.btn.add",
+                      defaultMessage: "Add",
+                    })}
+                  </Typography>
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <div className={classes.form}>
           <TextField

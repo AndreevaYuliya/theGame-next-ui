@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import languages, { DEFAULT_LANGUAGE } from 'misc/constants/languages';
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import languages, { DEFAULT_LANGUAGE } from "misc/constants/languages";
 
 const locationSearch = {
-  lang: 'lang',
+  lang: "lang",
 };
 
 export const DEFAULT_LOCATION_SEARCH = {
@@ -15,13 +15,17 @@ function SearchParamsConfigurator() {
 
   useEffect(() => {
     let isSearchParamsUpdated = false;
-    if (!searchParams.has(locationSearch.lang)
-      || !Object.values(languages)
-        .includes(searchParams.get(locationSearch.lang) || '')
+
+    if (
+      !searchParams.has(locationSearch.lang) ||
+      !Object.values(languages).includes(
+        searchParams.get(locationSearch.lang) || ""
+      )
     ) {
       searchParams.set(locationSearch.lang, DEFAULT_LANGUAGE);
       isSearchParamsUpdated = true;
     }
+
     if (isSearchParamsUpdated) {
       setSearchParams(searchParams, { replace: true });
     }

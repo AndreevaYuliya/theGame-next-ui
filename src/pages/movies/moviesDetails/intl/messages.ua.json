@@ -12,7 +12,7 @@
   "field.image": "URL зображення",
   "field.rating": "Рейтинг",
   "field.title": "Назва",
-  "field.year": "Рік випуску",
+  "field.year": "Рік виходу",
 
   "movieDetails.country": "Країна: ",
   "movieDetails.description": "Опис",
@@ -20,19 +20,39 @@
   "movieDetails.genres": "Жанри: ",
   "movieDetails.loading": "Завантаження деталей фільму...",
   "movieDetails.rating": "Рейтинг: ",
-  "movieDetails.year": "Рік випуску: ",
+  "movieDetails.year": "Рік виходу: ",
   "movieDetails.title": "Деталі фільму",
 
-  "movie.error.EMPTY_MOVIE_DIRECTOR": "Режисер є обов'язковим",
-  "movie.error.EMPTY_MOVIE_TITLE": "Назва є обов'язковою",
+  "movie.error.EMPTY_MOVIE_DIRECTOR": "Режисер обов'язковий",
+  "movie.error.EMPTY_MOVIE_TITLE": "Назва обов'язкова",
 
   "movie.error.INVALID_MOVIE_DATA_FORMAT": "{field} має бути {format}",
-  "movie.error.INVALID_MOVIE_RATING": "Рейтинг є обов'язковим",
-  "movie.error.INVALID_MOVIE_YEAR": "Рік є обов'язковим",
+  "movie.error.INVALID_MOVIE_RATING": "Рейтинг обов'язковий",
+  "movie.error.INVALID_MOVIE_YEAR": "Рік обов'язковий",
 
-  "movie.error.MOVIE_RATING_TOO_HIGH": "Рейтинг повинен бути не більшим за {max}",
-  "movie.error.MOVIE_RATING_TOO_LOW": "Рейтинг повинен бути не меншим за {min}",
+  "movie.error.MOVIE_RATING_TOO_HIGH": "Рейтинг має бути не більше {max}",
+  "movie.error.MOVIE_RATING_TOO_LOW": "Рейтинг має бути не менше {min}",
 
-  "movie.error.MOVIE_YEAR_TOO_HIGH": "Рік повинен бути не більшим за {max}",
-  "movie.error.MOVIE_YEAR_TOO_LOW": "Рік повинен бути не меншим за {min}"
+  "movie.error.MOVIE_YEAR_TOO_HIGH": "Рік має бути не більше {max}",
+  "movie.error.MOVIE_YEAR_TOO_LOW": "Рік має бути не менше {min}",
+
+  "review.field.author": "Ім'я",
+  "review.field.comment": "Коментар",
+  "review.field.rating": "Оцінка",
+  "review.btn.add": "Додати відгук",
+  "review.btn.more": "Показати ще",
+  "review.section.title": "Відгуки",
+  "review.section.total": "всього {count}",
+  "review.empty": "Поки немає відгуків",
+  "review.error.authorRequired": "Ім'я обов'язкове",
+  "review.error.ratingRequired": "Оцінка обов'язкова",
+  "review.error.ratingRange": "Оцінка має бути від 0 до 10",
+
+  "toast.movieCreateSuccess": "Фільм успішно створено",
+  "toast.movieCreateError": "Не вдалося створити фільм",
+  "toast.movieUpdateSuccess": "Фільм успішно оновлено",
+  "toast.movieUpdateError": "Не вдалося оновити фільм",
+  "toast.reviewCreateSuccess": "Відгук додано",
+  "toast.reviewCreateError": "Не вдалося додати відгук",
+  "toast.reviewLoadError": "Не вдалося завантажити відгуки"
 }

@@ -84,33 +84,40 @@ const fetchMovies =
     }
   };
 
-const fetchDeleteMovie = (id) => async (dispatch) => {
-  dispatch(requestDelete(id));
+const fetchDeleteMovie =
+  (id, { successMessage, errorMessage } = {}) =>
+  async (dispatch) => {
+    dispatch(requestDelete(id));
 
-  try {
-    await deleteMovie(id);
+    try {
+      await deleteMovie(id);
 
-    dispatch(successDelete(id));
-    dispatch(toastActions.showToast("Movie deleted successfully"));
+      dispatch(successDelete(id));
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+      dispatch(
+        toastActions.showToast(successMessage ?? "Movie deleted successfully")
+      );
 
-    return true;
-  } catch (e) {
-    const message =
-      e?.response?.data?.message ||
-      e?.response?.data ||
-      e?.message ||
-      "Delete failed";
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
 
-    dispatch(errorDelete({ message }));
-    dispatch(toastActions.showToast(message));
+      return true;
+    } catch (e) {
+      const message =
+        e?.response?.data?.message ||
+        e?.response?.data ||
+        e?.message ||
+        errorMessage ||
+        "Delete failed";
 
-    setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+      dispatch(errorDelete({ message }));
 
-    return false;
-  }
-};
+      dispatch(toastActions.showToast(message));
+
+      setTimeout(() => dispatch(toastActions.hideToast()), 2500);
+
+      return false;
+    }
+  };
 
 const moviesActions = {
   fetchMovies,

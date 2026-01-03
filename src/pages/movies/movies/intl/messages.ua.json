@@ -1,21 +1,24 @@
 {
-  "btn.addEntity": "Додати фiльм",
+  "btn.addEntity": "Додати фільм",
   "btn.cancel": "Скасувати",
   "btn.close": "Закрити",
-  "btn.confirm": "Пiдтвердити",
+  "btn.confirm": "Підтвердити",
   "btn.delete": "Видалити",
   "btn.nextPage": "Наступна сторінка",
   "btn.prevPage": "Попередня сторінка",
 
   "delete.confirmationMessage": "Ви впевнені, що хочете видалити: {movieTitle}?",
-  "delete.confirmTitle": "Пiдтвердження видалення",
+  "delete.confirmTitle": "Підтвердження видалення",
 
-  "filters.apply": "Застосувати фiльтри",
-  "filters.clear": "Очистити фiльтри",
+  "filters.apply": "Застосувати фільтри",
+  "filters.clear": "Очистити фільтри",
   "filters.label.title": "Пошук за назвою",
   "filters.label.yearFrom": "Пошук за роком від",
   "filters.label.yearTo": "Пошук за роком до",
 
-  "movies.loading": "Завантаження фiльмiв...",
-  "movies.title": "Фiльми"
+  "movies.loading": "Завантаження фільмів...",
+  "movies.title": "Фільми",
+
+  "toast.deleteSuccess": "Фільм успішно видалено",
+  "toast.deleteError": "Не вдалося видалити фільм"
 }

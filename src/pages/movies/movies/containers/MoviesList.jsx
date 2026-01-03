@@ -6,6 +6,7 @@ import { useIntl } from "react-intl";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import actionsMovies from "app/actions/movies";
+import actionsReviews from "app/actions/reviews";
 
 import useTheme from "misc/hooks/useTheme";
 
@@ -180,6 +181,8 @@ function MoviesListPage() {
   const { items, totalPages, loading, deleteError, deletingId } = useSelector(
     (s) => s.movies
   );
+
+  const reviewCounts = useSelector((s) => s.reviews.counts);
   const toast = useSelector((s) => s.toast);
 
   const [title, setTitle] = useState(titleFromUrl);
@@ -218,6 +221,14 @@ function MoviesListPage() {
     );
   }, [dispatch, page, titleFromUrl, yearFromUrl, yearToUrl]);
 
+  useEffect(() => {
+    if (!items?.length) {
+      return;
+    }
+
+    dispatch(actionsReviews.fetchCounts(items.map((m) => m.id)));
+  }, [dispatch, items]);
+
   const applyFilter = () => {
     const params = {
       page: String(DEFAULT_MOVIES_PAGE),
@@ -243,6 +254,7 @@ function MoviesListPage() {
     setTitle("");
     setYearFrom("");
     setYearTo("");
+
     setSearchParams({
       page: String(DEFAULT_MOVIES_PAGE),
       size: String(DEFAULT_MOVIES_SIZE),
@@ -294,11 +306,17 @@ function MoviesListPage() {
     if (yearToUrl) {
       params.yearTo = yearToUrl;
     }
+
     setSearchParams(params);
   };
 
   const confirmDelete = async () => {
-    const ok = await dispatch(actionsMovies.fetchDeleteMovie(deleteMovie.id));
+    const ok = await dispatch(
+      actionsMovies.fetchDeleteMovie(deleteMovie.id, {
+        successMessage: formatMessage({ id: "toast.deleteSuccess" }),
+        errorMessage: formatMessage({ id: "toast.deleteError" }),
+      })
+    );
 
     if (ok) {
       setDeleteMovie(null);
@@ -427,8 +445,11 @@ function MoviesListPage() {
                   <b>{movie.title}</b>
 
                   <div>{movie.yearReleased}</div>
+
+                  <div>Відгуків: {reviewCounts?.[movie.id] ?? 0}</div>
                 </div>
               </div>
+
               <div
                 className={classes.right}
                 onClick={(e) => e.stopPropagation()}

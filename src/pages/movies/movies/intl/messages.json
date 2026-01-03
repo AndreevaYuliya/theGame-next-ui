@@ -17,5 +17,8 @@
   "filters.label.yearTo": "Search by Year To",
 
   "movies.loading": "Loading movies...",
-  "movies.title": "Movies"
+  "movies.title": "Movies",
+
+  "toast.deleteSuccess": "Movie deleted successfully",
+  "toast.deleteError": "Delete failed"
 }
