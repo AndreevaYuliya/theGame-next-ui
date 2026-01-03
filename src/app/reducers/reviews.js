@@ -31,16 +31,30 @@ export default function reviews(state = initialState, action) {
       };
 
     case ERROR_REVIEWS:
-      return { ...state, loading: false, error: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     case REQUEST_REVIEW_COUNTS:
-      return { ...state, countsLoading: true };
+      return {
+        ...state,
+        countsLoading: true,
+      };
 
     case RECEIVE_REVIEW_COUNTS:
-      return { ...state, countsLoading: false, counts: action.payload || {} };
+      return {
+        ...state,
+        countsLoading: false,
+        counts: action.payload || {},
+      };
 
     case ERROR_REVIEW_COUNTS:
-      return { ...state, countsLoading: false };
+      return {
+        ...state,
+        countsLoading: false,
+      };
 
     default:
       return state;

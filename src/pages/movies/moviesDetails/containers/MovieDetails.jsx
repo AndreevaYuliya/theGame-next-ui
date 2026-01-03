@@ -266,7 +266,6 @@ function MovieDetailsPage() {
         pathname: pagesURLs[pages.moviesPage],
         search: search ? `?${search}` : "",
       },
-
       { replace: true }
     );
   };
@@ -358,9 +357,7 @@ function MovieDetailsPage() {
           }),
         })
       ).then((data) => setReviewsFrom(data?.length ?? 0));
-    } catch {
-      /* handled in action */
-    }
+    } catch {}
   };
 
   const hasError = useCallback(
@@ -482,13 +479,11 @@ function MovieDetailsPage() {
             genres: form.genres,
             description: form.description,
           },
-
           {
             successMessage: formatMessage({
               id: "toast.movieCreateSuccess",
               defaultMessage: "Movie created successfully",
             }),
-
             errorMessage: formatMessage({
               id: "toast.movieCreateError",
               defaultMessage: "Failed to create movie",
@@ -501,7 +496,6 @@ function MovieDetailsPage() {
         navigate(
           {
             pathname: `${pagesURLs[pages.movieDetailsPage]}/${res.id}`,
-
             search: location.state?.fromSearch
               ? `?${location.state.fromSearch}`
               : location.search,
@@ -521,7 +515,6 @@ function MovieDetailsPage() {
       const res = await dispatch(
         actionsMovieDetails.fetchUpdateMovie(
           movieId,
-
           {
             title: form.title,
             image: form.image,
@@ -531,13 +524,11 @@ function MovieDetailsPage() {
             genres: form.genres,
             description: form.description,
           },
-
           {
             successMessage: formatMessage({
               id: "toast.movieUpdateSuccess",
               defaultMessage: "Movie updated successfully",
             }),
-
             errorMessage: formatMessage({
               id: "toast.movieUpdateError",
               defaultMessage: "Failed to update movie",
@@ -553,29 +544,35 @@ function MovieDetailsPage() {
   };
 
   const ratingHelper = useMemo(() => {
-    if (hasError(errorCodes.INVALID_MOVIE_RATING))
+    if (hasError(errorCodes.INVALID_MOVIE_RATING)) {
       return tError(errorCodes.INVALID_MOVIE_RATING);
+    }
 
-    if (hasError(errorCodes.MOVIE_RATING_TOO_LOW))
+    if (hasError(errorCodes.MOVIE_RATING_TOO_LOW)) {
       return tError(errorCodes.MOVIE_RATING_TOO_LOW, { min: MIN_MOVIE_RATING });
+    }
 
-    if (hasError(errorCodes.MOVIE_RATING_TOO_HIGH))
+    if (hasError(errorCodes.MOVIE_RATING_TOO_HIGH)) {
       return tError(errorCodes.MOVIE_RATING_TOO_HIGH, {
         max: MAX_MOVIE_RATING,
       });
+    }
 
     return "";
   }, [hasError, tError]);
 
   const yearHelper = useMemo(() => {
-    if (hasError(errorCodes.INVALID_MOVIE_YEAR))
+    if (hasError(errorCodes.INVALID_MOVIE_YEAR)) {
       return tError(errorCodes.INVALID_MOVIE_YEAR);
+    }
 
-    if (hasError(errorCodes.MOVIE_YEAR_TOO_LOW))
+    if (hasError(errorCodes.MOVIE_YEAR_TOO_LOW)) {
       return tError(errorCodes.MOVIE_YEAR_TOO_LOW, { min: MIN_MOVIE_YEAR });
+    }
 
-    if (hasError(errorCodes.MOVIE_YEAR_TOO_HIGH))
+    if (hasError(errorCodes.MOVIE_YEAR_TOO_HIGH)) {
       return tError(errorCodes.MOVIE_YEAR_TOO_HIGH, { max: MAX_MOVIE_YEAR });
+    }
 
     return "";
   }, [hasError, tError]);
@@ -615,6 +612,7 @@ function MovieDetailsPage() {
                   <strong>
                     {formatMessage({ id: "movieDetails.rating" })}
                   </strong>
+
                   {rating}
                 </Typography>
               )}
@@ -622,6 +620,7 @@ function MovieDetailsPage() {
               {year && (
                 <Typography>
                   <strong>{formatMessage({ id: "movieDetails.year" })}</strong>
+
                   {year}
                 </Typography>
               )}
@@ -631,6 +630,7 @@ function MovieDetailsPage() {
                   <strong>
                     {formatMessage({ id: "movieDetails.country" })}
                   </strong>
+
                   {director?.country}
                 </Typography>
               )}
@@ -640,6 +640,7 @@ function MovieDetailsPage() {
                   <strong>
                     {formatMessage({ id: "movieDetails.director" })}
                   </strong>
+
                   {director?.name}
                 </Typography>
               )}
@@ -649,6 +650,7 @@ function MovieDetailsPage() {
                   <strong>
                     {formatMessage({ id: "movieDetails.genres" })}
                   </strong>
+
                   {genres}
                 </Typography>
               )}
@@ -660,7 +662,9 @@ function MovieDetailsPage() {
               <strong>
                 {formatMessage({ id: "movieDetails.description" })}
               </strong>
+
               <br />
+
               {description}
             </Typography>
           )}
@@ -681,7 +685,6 @@ function MovieDetailsPage() {
                         id: "review.section.total",
                         defaultMessage: "total {count}",
                       },
-
                       { count: counts[movieId] }
                     )}`
                   : ""}

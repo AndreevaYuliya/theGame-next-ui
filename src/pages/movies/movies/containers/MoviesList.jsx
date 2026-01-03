@@ -282,6 +282,7 @@ function MoviesListPage() {
     if (yearToUrl) {
       params.yearTo = yearToUrl;
     }
+
     setSearchParams(params);
   };
 
@@ -446,7 +447,12 @@ function MoviesListPage() {
 
                   <div>{movie.yearReleased}</div>
 
-                  <div>Відгуків: {reviewCounts?.[movie.id] ?? 0}</div>
+                  <div>
+                    {formatMessage(
+                      { id: "reviews.count" },
+                      { count: reviewCounts?.[movie.id] ?? 0 }
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -534,7 +540,7 @@ function MoviesListPage() {
               >
                 <Typography color="inherit">
                   {deletingId === deleteMovie.id
-                    ? "Deleting..."
+                    ? formatMessage({ id: "movies.deleting" })
                     : formatMessage({ id: "btn.confirm" })}
                 </Typography>
               </Button>

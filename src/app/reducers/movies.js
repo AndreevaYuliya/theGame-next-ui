@@ -69,7 +69,11 @@ export default function moviesReducer(state = initialState, action) {
     }
 
     case ERROR_DELETE_MOVIE:
-      return { ...state, deletingId: null, deleteError: action.payload };
+      return {
+        ...state,
+        deletingId: null,
+        deleteError: action.payload,
+      };
 
     default:
       return state;
