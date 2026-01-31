@@ -60,6 +60,11 @@ const getClasses = createUseStyles((theme) => ({
   userNameMobile: {
     maxWidth: "110px",
   },
+  userInfo: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
 }));
 
 const interfaceLagsTranslate = {
@@ -79,6 +84,7 @@ const rightPanelItemTypes = {
   LOGIN: "login",
   SEPARATOR: "separator",
   USER_NAME: "userName",
+  PICTURE: "picture",
 };
 
 function Header({ onLogout }) {
@@ -101,7 +107,9 @@ function Header({ onLogout }) {
     isUserMenuOpened: false,
   });
 
-  const userName = user.firstName || user.login;
+  // const userName = user.firstName || user.login;
+  const userName = user.name || user.login;
+  const userPicture = user.picture;
 
   const actualOrderedRightPanelItemTypes = useMemo(() => {
     const result = [];
@@ -158,7 +166,24 @@ function Header({ onLogout }) {
                     selected={state.isUserMenuOpened}
                   >
                     <div className={classes.hover}>
-                      <div className={isMobile ? classes.userNameMobile : ""}>
+                      <div
+                        className={
+                          isMobile ? classes.userNameMobile : classes.userInfo
+                        }
+                      >
+                        {!isMobile && userPicture && (
+                          <img
+                            alt={userName}
+                            src={userPicture}
+                            style={{
+                              width: isMobile ? 24 : 32,
+                              height: isMobile ? 24 : 32,
+                              borderRadius: "50%",
+                              marginRight: isMobile ? 8 : 12,
+                              objectFit: "cover",
+                            }}
+                          />
+                        )}
                         <Typography color="paper" noWrap variant="subtitle">
                           {!isMobile ? <strong>{userName}</strong> : userName}
                         </Typography>

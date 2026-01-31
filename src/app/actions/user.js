@@ -9,33 +9,18 @@ import {
   REQUEST_SIGN_OUT,
   REQUEST_SIGN_UP,
   REQUEST_USER,
+  ERROR_RECEIVE_USER,
   SUCCESS_SIGN_IN,
   SUCCESS_SIGN_UP,
 } from "../constants/actionTypes";
 
-const MOCK_USER_AUTH = {
-  login: "admin",
-  password: "21232f297a57a5a743894a0e4a801fc3", // admin
-};
-
-const MOCK_USER_AUTH_RESPONSE = {
-  user: {
-    authorities: ["ENABLE_SEE_SECRET_PAGE"],
-    email: "adminMail@gmail.com",
-    firstName: "Адмiнич",
-    id: "123",
-    lastName: "Адмiнченко",
-    login: "admin",
-  },
-  token: {
-    expirationTimestamp: 1714304134,
-    value: "someJWTToken",
-  },
-};
-
 const receiveUser = (user) => ({
   payload: user,
   type: RECEIVE_USER,
+});
+
+const errorReceiveUser = () => ({
+  type: ERROR_RECEIVE_USER,
 });
 
 const requestUser = () => ({
@@ -73,20 +58,25 @@ const requestSignOut = () => ({
   type: REQUEST_SIGN_OUT,
 });
 
+const getLoginUrl = (baseUrl) => `${baseUrl}/oauth2/authorization/auth`;
+const getLogoutUrl = (baseUrl) => `${baseUrl}/logout`;
+
+const redirectToLogin = () => {
+  const { USERS_SERVICE } = config;
+  window.location.href = getLoginUrl(USERS_SERVICE);
+};
+
 const getUser = () => {
   const { USERS_SERVICE } = config;
 
-  return axios.get(`${USERS_SERVICE}/user/get`);
+  return axios.get(`${USERS_SERVICE}/profile`);
 };
 
 const signIn = ({ email, login, password }) => {
   const { USERS_SERVICE } = config;
 
-  return axios.post(`${USERS_SERVICE}/user/signIn`, {
-    email,
-    login,
-    password,
-  });
+  sessionStorage.setItem("loginRedirect", "1");
+  return Promise.resolve((window.location.href = getLoginUrl(USERS_SERVICE)));
 };
 
 const signUp = ({ email, firstName, lastName, login, password }) => {
@@ -105,38 +95,16 @@ const fetchRefreshToken = () => (dispatch) => {};
 
 const fetchSignIn =
   ({ email, login, password }) =>
-  (dispatch) => {
+  async (dispatch) => {
     dispatch(requestSignIn());
 
-    return signIn({
-      email,
-      login,
-      password,
-    })
-      .catch(() => {
-        // TODO: Mocked '.catch()' section
-        if (
-          login === MOCK_USER_AUTH.login &&
-          password === MOCK_USER_AUTH.password
-        ) {
-          return MOCK_USER_AUTH_RESPONSE;
-        }
-        return Promise.reject([
-          {
-            code: "WRONG_LOGIN_OR_PASSWORD",
-          },
-        ]);
-      })
-      .then(({ token, user }) => {
-        storage.setItem(keys.TOKEN, token.value);
-
-        storage.setItem(keys.TOKEN_EXPIRATION, token.expirationTimestamp);
-
-        storage.setItem("USER", JSON.stringify(user)); // TODO: mocked code
-
-        dispatch(successSignIn(user));
-      })
-      .catch((errors) => dispatch(errorSignIn(errors)));
+    try {
+      await signIn({ email, login, password });
+      return null;
+    } catch (errors) {
+      dispatch(errorSignIn(errors));
+      return null;
+    }
   };
 
 const fetchSignOut = () => (dispatch) => {
@@ -147,6 +115,9 @@ const fetchSignOut = () => (dispatch) => {
   storage.removeItem("USER"); // TODO: Mocked code
 
   dispatch(requestSignOut());
+
+  const { USERS_SERVICE } = config;
+  window.location.href = getLogoutUrl(USERS_SERVICE);
 };
 
 const fetchSignUp =
@@ -165,29 +136,35 @@ const fetchSignUp =
       .catch((errors) => dispatch(errorSignUp(errors)));
   };
 
+let fetchUserInFlight = null;
+
 const fetchUser = () => (dispatch) => {
-  if (!storage.getItem(keys.TOKEN)) {
-    return null;
+  if (fetchUserInFlight) {
+    return fetchUserInFlight;
   }
 
-  dispatch(requestUser());
+  fetchUserInFlight = (async () => {
+    dispatch(requestUser());
 
-  return (
-    getUser()
-      // TODO Mocked '.catch()' section
-      .catch((err) => {
-        const user = storage.getItem("USER");
+    try {
+      const responce = await getUser();
+      const user = responce?.data ?? responce;
+      return dispatch(receiveUser(user));
+    } catch (error) {
+      const status = error?.response?.status;
 
-        if (user) {
-          const parsedUser = JSON.parse(user);
+      if (status === 401 || status === 302 || !status) {
+        dispatch(errorReceiveUser());
+        return null;
+      }
 
-          return parsedUser;
-        }
-        return Promise.reject(err);
-      })
-      .then((user) => dispatch(receiveUser(user)))
-      .catch(() => dispatch(fetchSignOut()))
-  );
+      return dispatch(fetchSignOut());
+    } finally {
+      fetchUserInFlight = null;
+    }
+  })();
+
+  return fetchUserInFlight;
 };
 
 const exportFunctions = {

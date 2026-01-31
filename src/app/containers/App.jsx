@@ -28,14 +28,8 @@ function App() {
     componentDidMount: false,
   });
 
-  const {
-    errors,
-    isFailedSignIn,
-    isFailedSignUp,
-    isFetchingSignIn,
-    isFetchingSignUp,
-    isFetchingUser,
-  } = useSelector(({ user }) => user);
+  const { errors, isFailedSignIn, isFetchingSignIn, isFetchingUser } =
+    useSelector(({ user }) => user);
 
   useEffect(() => {
     addAxiosInterceptors({
@@ -43,6 +37,16 @@ function App() {
     });
 
     dispatch(actionsUser.fetchUser());
+
+    const redirectFlag = sessionStorage.getItem("loginRedirect");
+
+    if (redirectFlag === "1") {
+      sessionStorage.removeItem("loginRedirect");
+
+      setTimeout(() => {
+        dispatch(actionsUser.fetchUser());
+      }, 800);
+    }
 
     setState({
       ...state,
@@ -97,33 +101,14 @@ function App() {
                         <LoginPage
                           errors={errors}
                           isFailedSignIn={isFailedSignIn}
-                          isFailedSignUp={isFailedSignUp}
                           isFetchingSignIn={isFetchingSignIn}
-                          isFetchingSignUp={isFetchingSignUp}
                           onSignIn={({ email, login, password }) =>
                             dispatch(
                               actionsUser.fetchSignIn({
                                 email,
                                 login,
                                 password,
-                              })
-                            )
-                          }
-                          onSignUp={({
-                            email,
-                            firstName,
-                            lastName,
-                            login,
-                            password,
-                          }) =>
-                            dispatch(
-                              actionsUser.fetchSignUp({
-                                email,
-                                firstName,
-                                lastName,
-                                login,
-                                password,
-                              })
+                              }),
                             )
                           }
                         />

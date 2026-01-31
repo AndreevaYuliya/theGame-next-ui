@@ -211,7 +211,7 @@ function MovieDetailsPage() {
             id: "toast.reviewLoadError",
             defaultMessage: "Failed to load reviews",
           }),
-        })
+        }),
       ).then((data) => setReviewsFrom(data?.length ?? 0));
     } else {
       dispatch(actionsMovieDetails.receiveMovieDetails({}));
@@ -236,9 +236,9 @@ function MovieDetailsPage() {
       errorCodeValues.includes(error.code)
         ? formatMessage(
             { id: `movie.error.${error.code}` },
-            error.values || error
+            error.values || error,
           )
-        : error.description
+        : error.description,
     );
 
     setExternalErrors(messages);
@@ -266,7 +266,7 @@ function MovieDetailsPage() {
         pathname: pagesURLs[pages.moviesPage],
         search: search ? `?${search}` : "",
       },
-      { replace: true }
+      { replace: true },
     );
   };
 
@@ -280,7 +280,7 @@ function MovieDetailsPage() {
           id: "toast.reviewLoadError",
           defaultMessage: "Failed to load reviews",
         }),
-      })
+      }),
     ).then((data) => setReviewsFrom((prev) => prev + (data?.length ?? 0)));
   };
 
@@ -317,14 +317,17 @@ function MovieDetailsPage() {
     setReviewErrors({});
 
     try {
+      const trimmedComment = reviewForm.comment.trim();
+      const reviewPayload = {
+        movieId,
+        author: reviewForm.author.trim(),
+        rating: Number(reviewForm.rating),
+        ...(trimmedComment ? { comment: trimmedComment } : {}),
+      };
+
       await dispatch(
         actionsReviews.createReview(
-          {
-            movieId,
-            author: reviewForm.author.trim(),
-            comment: reviewForm.comment,
-            rating: Number(reviewForm.rating),
-          },
+          reviewPayload,
 
           {
             successMessage: formatMessage({
@@ -336,8 +339,8 @@ function MovieDetailsPage() {
               id: "toast.reviewCreateError",
               defaultMessage: "Failed to add review",
             }),
-          }
-        )
+          },
+        ),
       );
 
       setReviewForm({ author: "", comment: "", rating: "" });
@@ -355,21 +358,21 @@ function MovieDetailsPage() {
             id: "toast.reviewLoadError",
             defaultMessage: "Failed to load reviews",
           }),
-        })
+        }),
       ).then((data) => setReviewsFrom(data?.length ?? 0));
     } catch {}
   };
 
   const hasError = useCallback(
     (code) => validationErrors.some((err) => (err?.code || err) === code),
-    [validationErrors]
+    [validationErrors],
   );
 
   const getFormatError = (target) =>
     validationErrors.find(
       (err) =>
         err?.code === errorCodes.INVALID_MOVIE_DATA_FORMAT &&
-        err.target === target
+        err.target === target,
     );
 
   const getMovieValidationErrors = () => {
@@ -428,10 +431,10 @@ function MovieDetailsPage() {
     (code, values) =>
       formatMessage(
         { id: `movie.error.${code}`, defaultMessage: code },
-        values
+        values,
       ),
 
-    [formatMessage]
+    [formatMessage],
   );
 
   const handleCancel = () => {
@@ -488,8 +491,8 @@ function MovieDetailsPage() {
               id: "toast.movieCreateError",
               defaultMessage: "Failed to create movie",
             }),
-          }
-        )
+          },
+        ),
       );
 
       if (res?.id) {
@@ -506,7 +509,7 @@ function MovieDetailsPage() {
                 location.state?.fromSearch ||
                 location.search.replace(/^\?/, ""),
             },
-          }
+          },
         );
 
         setMode("view");
@@ -533,8 +536,8 @@ function MovieDetailsPage() {
               id: "toast.movieUpdateError",
               defaultMessage: "Failed to update movie",
             }),
-          }
-        )
+          },
+        ),
       );
 
       if (res) {
@@ -685,7 +688,7 @@ function MovieDetailsPage() {
                         id: "review.section.total",
                         defaultMessage: "total {count}",
                       },
-                      { count: counts[movieId] }
+                      { count: counts[movieId] },
                     )}`
                   : ""}
               </Typography>
@@ -848,7 +851,7 @@ function MovieDetailsPage() {
               getFormatError("rating")
                 ? formatMessage(
                     { id: "movie.error.INVALID_MOVIE_DATA_FORMAT" },
-                    getFormatError("rating")
+                    getFormatError("rating"),
                   )
                 : ratingHelper
             }
@@ -871,7 +874,7 @@ function MovieDetailsPage() {
               getFormatError("year")
                 ? formatMessage(
                     { id: "movie.error.INVALID_MOVIE_DATA_FORMAT" },
-                    getFormatError("year")
+                    getFormatError("year"),
                   )
                 : yearHelper
             }

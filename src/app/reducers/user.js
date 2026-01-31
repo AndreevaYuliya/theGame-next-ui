@@ -14,6 +14,8 @@ import {
 const initialState = {
   authorities: [],
   firstName: "",
+  name: "",
+  picture: "",
   email: "",
   errors: [],
   id: "",
@@ -68,6 +70,8 @@ export default function Reducer(state = initialState, action) {
         isFetchingUser: false,
         lastName: user.lastName || initialState.lastName,
         login: user.login || initialState.login,
+        name: user.name || initialState.name,
+        picture: user.picture || initialState.picture,
       };
     }
 

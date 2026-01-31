@@ -1,6 +1,8 @@
 import axios from "axios";
 import storage, { keys } from "../storage";
 
+axios.defaults.withCredentials = true;
+
 axios.interceptors.request.use((params) => {
   const token = storage.getItem(keys.TOKEN);
   if (token) {

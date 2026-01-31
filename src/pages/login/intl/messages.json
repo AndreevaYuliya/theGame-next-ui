@@ -8,6 +8,8 @@
   "field.email": "Email",
   "field.firstName": "First Name",
   "field.lastName": "Last Name",
+  "page.login": "Login",
+  "page.loginWithGoogle": "Login with Google",
   "field.login": "Login",
   "field.loginOrEmail": "Login or Email",
   "field.password": "Password",
