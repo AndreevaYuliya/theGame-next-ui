@@ -3,6 +3,8 @@
   "error.UNAUTHORIZED": "You don't have authorities to use system functionality.",
   "page.default": "Home",
   "page.login": "Login",
+  "page.movies": "Movies",
+  "page.moviesDetails": "Movie Details",
   "page.secret": "Secret Page",
   "signIn": "Sign In",
   "signOut": "Sign Out"

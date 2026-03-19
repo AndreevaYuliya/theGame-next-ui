@@ -1,18 +1,18 @@
-import { createUseStyles } from 'react-jss';
-import { useIntl } from 'react-intl';
-import * as authorities from 'constants/authorities';
-import * as pages from 'constants/pages';
-import IconButton from 'components/IconButton/IconButton';
-import IconLockOpen from 'components/icons/LockOpen';
-import IconMenu from 'components/icons/Menu';
-import Link from 'components/Link';
-import MenuItem from 'components/MenuItem';
-import pagesURLs from 'constants/pagesURLs';
-import React, { useMemo, useState } from 'react';
-import SwipeableDrawer from 'components/SwipeableDrawer';
-import Typography from 'components/Typography';
-import useAccessValidate from 'misc/hooks/useAccessValidate';
-import useTheme from 'misc/hooks/useTheme';
+import { createUseStyles } from "react-jss";
+import { useIntl } from "react-intl";
+import * as authorities from "constants/authorities";
+import * as pages from "constants/pages";
+import IconButton from "components/IconButton/IconButton";
+import IconLockOpen from "components/icons/LockOpen";
+import IconMenu from "components/icons/Menu";
+import Link from "components/Link";
+import MenuItem from "components/MenuItem";
+import pagesURLs from "constants/pagesURLs";
+import React, { useMemo, useState } from "react";
+import SwipeableDrawer from "components/SwipeableDrawer";
+import Typography from "components/Typography";
+import useAccessValidate from "misc/hooks/useAccessValidate";
+import useTheme from "misc/hooks/useTheme";
 
 const getClasses = createUseStyles((theme) => ({
   menuHeaderSpace: {
@@ -31,21 +31,26 @@ const menuItems = [
 
 function LeftNavBar() {
   const { formatMessage } = useIntl();
+
   const { theme } = useTheme();
+
   const accessValidate = useAccessValidate();
+
   const classes = getClasses({ theme });
+
   const [state, setState] = useState({
     isNavMenuOpened: false,
   });
 
-  const onClose = () => setState({
-    ...state,
-    isNavMenuOpened: false,
-  });
+  const onClose = () =>
+    setState({
+      ...state,
+      isNavMenuOpened: false,
+    });
 
   const filteredItems = useMemo(
-    () => menuItems.filter(item => accessValidate(item.neededAuthorities)),
-    [accessValidate],
+    () => menuItems.filter((item) => accessValidate(item.neededAuthorities)),
+    [accessValidate]
   );
 
   if (!filteredItems.length) {
@@ -56,23 +61,24 @@ function LeftNavBar() {
     <>
       <IconButton
         colorVariant="header"
-        onClick={() => setState({
-          ...state,
-          isNavMenuOpened: true,
-        })}
+        onClick={() =>
+          setState({
+            ...state,
+            isNavMenuOpened: true,
+          })
+        }
       >
-        <IconMenu
-          color="header"
-          size={32}
-        />
+        <IconMenu color="header" size={32} />
       </IconButton>
+
       <SwipeableDrawer
         anchor="left"
         isOpened={state.isNavMenuOpened}
         onClose={onClose}
       >
         <div className={classes.menuHeaderSpace} />
-        {filteredItems.map(menuItem => (
+
+        {filteredItems.map((menuItem) => (
           <Link
             onClick={onClose}
             to={{
@@ -81,7 +87,8 @@ function LeftNavBar() {
           >
             <MenuItem>
               {menuItem.icon}
-              <Typography variant="subTitle">
+
+              <Typography variant="subtitle">
                 {formatMessage({ id: menuItem.titleIntlId })}
               </Typography>
             </MenuItem>

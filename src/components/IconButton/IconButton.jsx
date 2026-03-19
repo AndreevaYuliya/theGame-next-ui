@@ -1,11 +1,12 @@
-import React from 'react';
-import IconButtonMUI from '@mui/material/IconButton';
-import useTheme from 'misc/hooks/useTheme';
+import React from "react";
+import IconButtonMUI from "@mui/material/IconButton";
+import useTheme from "misc/hooks/useTheme";
 
 const colorVariants = {
-  header: 'header',
-  primary: 'primary',
-  secondary: 'secondary',
+  header: "header",
+  primary: "primary",
+  secondary: "secondary",
+  icon: "icon",
 };
 
 const IconButton = ({
@@ -25,17 +26,17 @@ const IconButton = ({
       onMouseDown={onPress}
       onMouseUp={onRelease}
       sx={{
-        '&.MuiIconButton-root': {
-          '&.Mui-disabled': {
+        "&.MuiIconButton-root": {
+          "&.Mui-disabled": {
             background: theme.button.color[colorVariant].backgroundDisabled,
           },
-          '&:hover': {
+          "&:hover": {
             background: theme.button.color[colorVariant].backgroundHovered,
           },
           background: theme.button.color[colorVariant].background,
           color: theme.button.color[colorVariant].text,
           padding: `${theme.spacing(0.5)}px`,
-          opacity: disabled && '0.4',
+          opacity: disabled && "0.4",
         },
       }}
     >

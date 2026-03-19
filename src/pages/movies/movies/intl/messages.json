@@ -1,0 +1,27 @@
+{
+  "btn.addEntity": "Add Movie",
+  "btn.cancel": "Cancel",
+  "btn.close": "Close",
+  "btn.confirm": "Confirm",
+  "btn.delete": "Delete",
+  "btn.nextPage": "Next Page",
+  "btn.prevPage": "Previous Page",
+
+  "delete.confirmationMessage": "Are you sure you want to delete: {movieTitle}?",
+  "delete.confirmTitle": "Delete Confirmation",
+
+  "filters.apply": "Apply Filters",
+  "filters.clear": "Clear Filters",
+  "filters.label.title": "Search by Title",
+  "filters.label.yearFrom": "Search by Year From",
+  "filters.label.yearTo": "Search by Year To",
+
+  "movies.deleting": "Deleting movie...",
+  "movies.loading": "Loading movies...",
+  "movies.title": "Movies",
+
+  "reviews.count": "Reviews: {count}",
+
+  "toast.deleteSuccess": "Movie deleted successfully",
+  "toast.deleteError": "Delete failed"
+}
